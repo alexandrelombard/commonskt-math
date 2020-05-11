@@ -1,6 +1,3 @@
-package com.github.alexandrelombard.commonskt.math3.utils
-
-
 /*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -17,14 +14,16 @@ package com.github.alexandrelombard.commonskt.math3.utils
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.github.alexandrelombard.commonskt.math3.utils
+
+import com.github.alexandrelombard.commonskt.math.BigDecimal
+import com.github.alexandrelombard.commonskt.math.BigInteger
+import com.github.alexandrelombard.commonskt.math.MathContext
+import com.github.alexandrelombard.commonskt.math.RoundingMode
+import com.github.alexandrelombard.commonskt.math3.Field
 import com.github.alexandrelombard.commonskt.math3.FieldElement
 import com.github.alexandrelombard.commonskt.math3.exception.MathArithmeticException
 import com.github.alexandrelombard.commonskt.math3.exception.util.LocalizedFormats
-import org.apache.commons.math3.Field
-import org.apache.commons.math3.FieldElement
-import org.apache.commons.math3.exception.MathArithmeticException
-import org.apache.commons.math3.exception.util.LocalizedFormats
-
 
 /**
  * Arbitrary precision decimal number.
@@ -35,12 +34,13 @@ import org.apache.commons.math3.exception.util.LocalizedFormats
  *
  * @since 2.0
  */
-class BigReal : FieldElement<BigReal?>, Comparable<BigReal?>, java.io.Serializable {
+@ExperimentalStdlibApi
+class BigReal : FieldElement<BigReal>, Comparable<BigReal> {
     /** Underlying BigDecimal.  */
-    private val d: java.math.BigDecimal
+    private val d: BigDecimal
 
     /** Rounding mode for divisions.  */
-    private var roundingMode: java.math.RoundingMode = java.math.RoundingMode.HALF_UP
+    private var roundingMode: RoundingMode = RoundingMode.HALF_UP
 
     /***
      * Sets the scale for division operations.
@@ -59,23 +59,23 @@ class BigReal : FieldElement<BigReal?>, Comparable<BigReal?>, java.io.Serializab
     /** Build an instance from a BigDecimal.
      * @param val value of the instance
      */
-    constructor(`val`: java.math.BigDecimal) {
+    constructor(`val`: BigDecimal) {
         d = `val`
     }
 
     /** Build an instance from a BigInteger.
      * @param val value of the instance
      */
-    constructor(`val`: java.math.BigInteger?) {
-        d = java.math.BigDecimal(`val`)
+    constructor(`val`: BigInteger) {
+        d = BigDecimal(`val`)
     }
 
     /** Build an instance from an unscaled BigInteger.
      * @param unscaledVal unscaled value
      * @param scale scale to use
      */
-    constructor(unscaledVal: java.math.BigInteger?, scale: Int) {
-        d = java.math.BigDecimal(unscaledVal, scale)
+    constructor(unscaledVal: BigInteger, scale: Int) {
+        d = BigDecimal(unscaledVal, scale)
     }
 
     /** Build an instance from an unscaled BigInteger.
@@ -83,23 +83,23 @@ class BigReal : FieldElement<BigReal?>, Comparable<BigReal?>, java.io.Serializab
      * @param scale scale to use
      * @param mc to used
      */
-    constructor(unscaledVal: java.math.BigInteger?, scale: Int, mc: java.math.MathContext?) {
-        d = java.math.BigDecimal(unscaledVal, scale, mc)
+    constructor(unscaledVal: BigInteger, scale: Int, mc: MathContext) {
+        d = BigDecimal(unscaledVal, scale, mc)
     }
 
     /** Build an instance from a BigInteger.
      * @param val value of the instance
      * @param mc context to use
      */
-    constructor(`val`: java.math.BigInteger?, mc: java.math.MathContext?) {
-        d = java.math.BigDecimal(`val`, mc)
+    constructor(`val`: BigInteger, mc: MathContext) {
+        d = BigDecimal(`val`, mc)
     }
 
     /** Build an instance from a characters representation.
      * @param in character representation of the value
      */
-    constructor(`in`: CharArray?) {
-        d = java.math.BigDecimal(`in`)
+    constructor(`in`: CharArray) {
+        d = BigDecimal(`in`)
     }
 
     /** Build an instance from a characters representation.
@@ -107,8 +107,8 @@ class BigReal : FieldElement<BigReal?>, Comparable<BigReal?>, java.io.Serializab
      * @param offset offset of the first character to analyze
      * @param len length of the array slice to analyze
      */
-    constructor(`in`: CharArray?, offset: Int, len: Int) {
-        d = java.math.BigDecimal(`in`, offset, len)
+    constructor(`in`: CharArray, offset: Int, len: Int) {
+        d = BigDecimal(`in`, offset, len)
     }
 
     /** Build an instance from a characters representation.
@@ -117,76 +117,76 @@ class BigReal : FieldElement<BigReal?>, Comparable<BigReal?>, java.io.Serializab
      * @param len length of the array slice to analyze
      * @param mc context to use
      */
-    constructor(`in`: CharArray?, offset: Int, len: Int, mc: java.math.MathContext?) {
-        d = java.math.BigDecimal(`in`, offset, len, mc)
+    constructor(`in`: CharArray, offset: Int, len: Int, mc: MathContext) {
+        d = BigDecimal(`in`, offset, len, mc)
     }
 
     /** Build an instance from a characters representation.
      * @param in character representation of the value
      * @param mc context to use
      */
-    constructor(`in`: CharArray?, mc: java.math.MathContext?) {
-        d = java.math.BigDecimal(`in`, mc)
+    constructor(`in`: CharArray, mc: MathContext) {
+        d = BigDecimal(`in`, mc)
     }
 
     /** Build an instance from a double.
      * @param val value of the instance
      */
     constructor(`val`: Double) {
-        d = java.math.BigDecimal(`val`)
+        d = BigDecimal(`val`)
     }
 
     /** Build an instance from a double.
      * @param val value of the instance
      * @param mc context to use
      */
-    constructor(`val`: Double, mc: java.math.MathContext?) {
-        d = java.math.BigDecimal(`val`, mc)
+    constructor(`val`: Double, mc: MathContext) {
+        d = BigDecimal(`val`, mc)
     }
 
     /** Build an instance from an int.
      * @param val value of the instance
      */
     constructor(`val`: Int) {
-        d = java.math.BigDecimal(`val`)
+        d = BigDecimal(`val`)
     }
 
     /** Build an instance from an int.
      * @param val value of the instance
      * @param mc context to use
      */
-    constructor(`val`: Int, mc: java.math.MathContext?) {
-        d = java.math.BigDecimal(`val`, mc)
+    constructor(`val`: Int, mc: MathContext) {
+        d = BigDecimal(`val`, mc)
     }
 
     /** Build an instance from a long.
      * @param val value of the instance
      */
     constructor(`val`: Long) {
-        d = java.math.BigDecimal(`val`)
+        d = BigDecimal(`val`)
     }
 
     /** Build an instance from a long.
      * @param val value of the instance
      * @param mc context to use
      */
-    constructor(`val`: Long, mc: java.math.MathContext?) {
-        d = java.math.BigDecimal(`val`, mc)
+    constructor(`val`: Long, mc: MathContext) {
+        d = BigDecimal(`val`, mc)
     }
 
     /** Build an instance from a String representation.
      * @param val character representation of the value
      */
-    constructor(`val`: String?) {
-        d = java.math.BigDecimal(`val`)
+    constructor(`val`: String) {
+        d = BigDecimal(`val`)
     }
 
     /** Build an instance from a String representation.
      * @param val character representation of the value
      * @param mc context to use
      */
-    constructor(`val`: String?, mc: java.math.MathContext?) {
-        d = java.math.BigDecimal(`val`, mc)
+    constructor(`val`: String, mc: MathContext) {
+        d = BigDecimal(`val`, mc)
     }
 
     /***
@@ -195,7 +195,7 @@ class BigReal : FieldElement<BigReal?>, Comparable<BigReal?>, java.io.Serializab
      * @return the rounding mode.
      * @since 2.1
      */
-    fun getRoundingMode(): java.math.RoundingMode {
+    fun getRoundingMode(): RoundingMode {
         return roundingMode
     }
 
@@ -204,7 +204,7 @@ class BigReal : FieldElement<BigReal?>, Comparable<BigReal?>, java.io.Serializab
      * @param roundingMode rounding mode for decimal divisions
      * @since 2.1
      */
-    fun setRoundingMode(roundingMode: java.math.RoundingMode) {
+    fun setRoundingMode(roundingMode: RoundingMode) {
         this.roundingMode = roundingMode
     }
 
@@ -228,7 +228,6 @@ class BigReal : FieldElement<BigReal?>, Comparable<BigReal?>, java.io.Serializab
      *
      * @throws MathArithmeticException if `a` is zero
      */
-    @Throws(MathArithmeticException::class)
     override fun divide(a: BigReal): BigReal {
         return try {
             BigReal(d.divide(a.d, scale, roundingMode))
@@ -243,10 +242,9 @@ class BigReal : FieldElement<BigReal?>, Comparable<BigReal?>, java.io.Serializab
      *
      * @throws MathArithmeticException if `this` is zero
      */
-    @Throws(MathArithmeticException::class)
     override fun reciprocal(): BigReal {
         return try {
-            BigReal(java.math.BigDecimal.ONE.divide(d, scale, roundingMode))
+            BigReal(BigDecimal.ONE.divide(d, scale, roundingMode))
         } catch (e: ArithmeticException) {
             // Division by zero has occurred
             throw MathArithmeticException(LocalizedFormats.ZERO_NOT_ALLOWED)
@@ -260,7 +258,7 @@ class BigReal : FieldElement<BigReal?>, Comparable<BigReal?>, java.io.Serializab
 
     /** {@inheritDoc}  */
     override fun multiply(n: Int): BigReal {
-        return BigReal(d.multiply(java.math.BigDecimal(n)))
+        return BigReal(d.multiply(BigDecimal(n)))
     }
 
     /** {@inheritDoc}  */
@@ -272,13 +270,13 @@ class BigReal : FieldElement<BigReal?>, Comparable<BigReal?>, java.io.Serializab
      * @return double value corresponding to the instance
      */
     fun doubleValue(): Double {
-        return d.doubleValue()
+        return d.toDouble()
     }
 
     /** Get the BigDecimal value corresponding to the instance.
      * @return BigDecimal value corresponding to the instance
      */
-    fun bigDecimalValue(): java.math.BigDecimal {
+    fun bigDecimalValue(): BigDecimal {
         return d
     }
 
@@ -299,14 +297,14 @@ class BigReal : FieldElement<BigReal?>, Comparable<BigReal?>, java.io.Serializab
 
     /** {@inheritDoc}  */
     override val field: Field<BigReal>
-        get() = BigRealField.getInstance()
+        get() = BigRealField.instance
 
     companion object {
         /** A big real representing 0.  */
-        val ZERO: BigReal = BigReal(java.math.BigDecimal.ZERO)
+        val ZERO: BigReal = BigReal(BigDecimal.ZERO)
 
         /** A big real representing 1.  */
-        val ONE: BigReal = BigReal(java.math.BigDecimal.ONE)
+        val ONE: BigReal = BigReal(BigDecimal.ONE)
 
         /** Serializable version identifier.  */
         private const val serialVersionUID = 4984534880991310382L

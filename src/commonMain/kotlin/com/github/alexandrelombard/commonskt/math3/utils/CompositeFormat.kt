@@ -1,5 +1,3 @@
-package com.github.alexandrelombard.commonskt.math3.utils
-
 /*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -16,7 +14,7 @@ package com.github.alexandrelombard.commonskt.math3.utils
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
+package com.github.alexandrelombard.commonskt.math3.utils
 
 /**
  * Base class for formatters of composite objects (complex numbers, vectors ...).
@@ -101,7 +99,7 @@ object CompositeFormat {
         pos: ParsePosition
     ): Number? {
         var ret: Number? = null
-        val sb: java.lang.StringBuilder = java.lang.StringBuilder()
+        val sb: StringBuilder = StringBuilder()
         sb.append('(')
         sb.append(value)
         sb.append(')')
@@ -111,7 +109,7 @@ object CompositeFormat {
         if (endIndex < source.length &&
             source.substring(startIndex, endIndex).compareTo(sb.toString()) == 0
         ) {
-            ret = java.lang.Double.valueOf(value)
+            ret = value
             pos.setIndex(endIndex)
         }
         return ret
@@ -128,7 +126,7 @@ object CompositeFormat {
      * @return the parsed number.
      */
     fun parseNumber(
-        source: String?, format: NumberFormat,
+        source: String, format: NumberFormat,
         pos: ParsePosition
     ): Number? {
         val startIndex: Int = pos.getIndex()
@@ -204,7 +202,7 @@ object CompositeFormat {
         toAppendTo: StringBuffer,
         pos: FieldPosition?
     ): StringBuffer {
-        if (java.lang.Double.isNaN(value) || java.lang.Double.isInfinite(value)) {
+        if (value.isNaN() || value.isInfinite()) {
             toAppendTo.append('(')
             toAppendTo.append(value)
             toAppendTo.append(')')

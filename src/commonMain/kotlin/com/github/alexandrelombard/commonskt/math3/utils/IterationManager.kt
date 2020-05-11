@@ -66,7 +66,6 @@ class IterationManager {
         object :
             IntegerSequence.Incrementor.MaxCountExceededCallback {
             /** {@inheritDoc}  */
-            @Throws(MaxCountExceededException::class)
             override fun trigger(maximalCount: Int) {
                 callBack.trigger(maximalCount)
             }
@@ -173,7 +172,6 @@ class IterationManager {
      * @throws MaxCountExceededException if the maximum number of iterations is
      * reached.
      */
-    @Throws(MaxCountExceededException::class)
     fun incrementIterationCount() {
         iterations.increment()
     }

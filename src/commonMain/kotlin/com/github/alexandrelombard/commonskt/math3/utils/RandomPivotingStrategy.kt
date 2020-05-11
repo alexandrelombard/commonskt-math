@@ -26,7 +26,7 @@ import org.apache.commons.math3.random.RandomGenerator
  * A strategy of selecting random index between begin and end indices.
  * @since 3.4
  */
-class RandomPivotingStrategy(random: RandomGenerator) : PivotingStrategyInterface, java.io.Serializable {
+class RandomPivotingStrategy(random: RandomGenerator) : PivotingStrategyInterface {
     /** Random generator to use for selecting pivot.  */
     private val random: RandomGenerator
 
@@ -37,8 +37,7 @@ class RandomPivotingStrategy(random: RandomGenerator) : PivotingStrategyInterfac
      * value between first and the last indices of the array slice
      * @throws MathIllegalArgumentException when indices exceeds range
      */
-    @Throws(MathIllegalArgumentException::class)
-    override fun pivotIndex(work: DoubleArray?, begin: Int, end: Int): Int {
+    override fun pivotIndex(work: DoubleArray, begin: Int, end: Int): Int {
         MathArrays.verifyValues(work, begin, end - begin)
         return begin + random.nextInt(end - begin - 1)
     }

@@ -1,6 +1,3 @@
-package com.github.alexandrelombard.commonskt.math3.utils
-
-
 /*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -17,15 +14,12 @@ package com.github.alexandrelombard.commonskt.math3.utils
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.github.alexandrelombard.commonskt.math3.utils
+
 import com.github.alexandrelombard.commonskt.math3.exception.ConvergenceException
 import com.github.alexandrelombard.commonskt.math3.exception.MaxCountExceededException
 import com.github.alexandrelombard.commonskt.math3.exception.util.LocalizedFormats
 import com.github.alexandrelombard.commonskt.math3.utils.FastMath.abs
-import org.apache.commons.math3.exception.ConvergenceException
-import org.apache.commons.math3.exception.MaxCountExceededException
-import org.apache.commons.math3.exception.util.LocalizedFormats
-import kotlin.jvm.JvmOverloads
-
 
 /**
  * Provides a generic means to evaluate continued fractions.  Subclasses simply
@@ -72,7 +66,6 @@ protected constructor() {
      * @throws ConvergenceException if the algorithm fails to converge.
      * @throws MaxCountExceededException if maximal number of iterations is reached
      */
-    @Throws(ConvergenceException::class, MaxCountExceededException::class)
     fun evaluate(x: Double, maxIterations: Int): Double {
         return evaluate(x, DEFAULT_EPSILON, maxIterations)
     }
@@ -85,8 +78,7 @@ protected constructor() {
      *
      *  *
      * I. J. Thompson,  A. R. Barnett. "Coulomb and Bessel Functions of Complex Arguments and Order."
-     * [
- * http://www.fresco.org.uk/papers/Thompson-JCP64p490.pdf](http://www.fresco.org.uk/papers/Thompson-JCP64p490.pdf)
+     * [http://www.fresco.org.uk/papers/Thompson-JCP64p490.pdf](http://www.fresco.org.uk/papers/Thompson-JCP64p490.pdf)
      *
      *
      * **Note:** the implementation uses the terms a<sub>i</sub> and b<sub>i</sub> as defined in
@@ -100,21 +92,6 @@ protected constructor() {
      * @throws ConvergenceException if the algorithm fails to converge.
      * @throws MaxCountExceededException if maximal number of iterations is reached
      */
-    /**
-     * Evaluates the continued fraction at the value x.
-     * @param x the evaluation point.
-     * @return the value of the continued fraction evaluated at x.
-     * @throws ConvergenceException if the algorithm fails to converge.
-     */
-    /**
-     * Evaluates the continued fraction at the value x.
-     * @param x the evaluation point.
-     * @param epsilon maximum error allowed.
-     * @return the value of the continued fraction evaluated at x.
-     * @throws ConvergenceException if the algorithm fails to converge.
-     */
-    @JvmOverloads
-    @Throws(ConvergenceException::class, MaxCountExceededException::class)
     fun evaluate(
         x: Double,
         epsilon: Double = DEFAULT_EPSILON,
@@ -145,17 +122,15 @@ protected constructor() {
             dN = 1 / dN
             val deltaN = cN * dN
             hN = hPrev * deltaN
-            if (java.lang.Double.isInfinite(hN)) {
+            if (hN.isInfinite()) {
                 throw ConvergenceException(
                     LocalizedFormats.CONTINUED_FRACTION_INFINITY_DIVERGENCE,
-                    x
-                )
+                    x)
             }
-            if (java.lang.Double.isNaN(hN)) {
+            if (hN.isNaN()) {
                 throw ConvergenceException(
                     LocalizedFormats.CONTINUED_FRACTION_NAN_DIVERGENCE,
-                    x
-                )
+                    x)
             }
             if (abs(deltaN - 1.0) < epsilon) {
                 break

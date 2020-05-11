@@ -91,7 +91,7 @@ import kotlin.jvm.Synchronized
  * violated.
  *
  */
-class ResizableDoubleArray : DoubleArray, java.io.Serializable {
+class ResizableDoubleArray : DoubleArray {
     /**
      * The contraction criterion defines when the internal array will contract
      * to store only the number of elements in the element array.

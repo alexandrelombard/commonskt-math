@@ -1,7 +1,3 @@
-package com.github.alexandrelombard.commonskt.math3.utils
-import com.github.alexandrelombard.commonskt.math3.FieldElement
-
-
 /*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -18,10 +14,12 @@ import com.github.alexandrelombard.commonskt.math3.FieldElement
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.github.alexandrelombard.commonskt.math3.utils
 
-import org.apache.commons.math3.Field
-import org.apache.commons.math3.FieldElement
+import kotlin.reflect.KClass
 
+import com.github.alexandrelombard.commonskt.math3.Field
+import com.github.alexandrelombard.commonskt.math3.FieldElement
 
 /**
  * Representation of real numbers with arbitrary precision field.
@@ -33,21 +31,22 @@ import org.apache.commons.math3.FieldElement
  *
  * @since 2.0
  */
+@ExperimentalStdlibApi
 class BigRealField
 /** Private constructor for the singleton.
  */
-private constructor() : Field<BigReal?>, java.io.Serializable {
+private constructor() : Field<BigReal> {
     /** {@inheritDoc}  */
-    val one: BigReal
+    override val one: BigReal
         get() = BigReal.ONE
 
     /** {@inheritDoc}  */
-    val zero: BigReal
+    override val zero: BigReal
         get() = BigReal.ZERO
 
     /** {@inheritDoc}  */
-    val runtimeClass: java.lang.Class<out FieldElement<BigReal>?>
-        get() = BigReal::class.java
+    override val runtimeClass: KClass<out FieldElement<BigReal>>
+        get() = BigReal::class
     // CHECKSTYLE: stop HideUtilityClassConstructor
     /** Holder for the instance.
      *
@@ -55,7 +54,7 @@ private constructor() : Field<BigReal?>, java.io.Serializable {
      */
     private object LazyHolder {
         /** Cached field instance.  */
-        private val INSTANCE = BigRealField()
+        val INSTANCE = BigRealField()
     }
     // CHECKSTYLE: resume HideUtilityClassConstructor
     /** Handle deserialization of the singleton.

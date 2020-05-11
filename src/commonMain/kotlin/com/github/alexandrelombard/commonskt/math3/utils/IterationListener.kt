@@ -23,7 +23,7 @@ package com.github.alexandrelombard.commonskt.math3.utils
  * algorithm.
  *
  */
-interface IterationListener : java.util.EventListener {
+interface IterationListener : EventListener {
     /**
      * Invoked after completion of the initial phase of the iterative algorithm
      * (prior to the main iteration loop).

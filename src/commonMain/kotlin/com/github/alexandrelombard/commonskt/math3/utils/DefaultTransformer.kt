@@ -1,6 +1,3 @@
-package com.github.alexandrelombard.commonskt.math3.utils
-
-
 /*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -17,14 +14,10 @@ package com.github.alexandrelombard.commonskt.math3.utils
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.github.alexandrelombard.commonskt.math3.utils
 
 import com.github.alexandrelombard.commonskt.math3.exception.MathIllegalArgumentException
-import com.github.alexandrelombard.commonskt.math3.exception.NullArgumentException
 import com.github.alexandrelombard.commonskt.math3.exception.util.LocalizedFormats
-import org.apache.commons.math3.exception.MathIllegalArgumentException
-import org.apache.commons.math3.exception.NullArgumentException
-import org.apache.commons.math3.exception.util.LocalizedFormats
-
 
 /**
  * A Default NumberTransformer for java.lang.Numbers and Numeric Strings. This
@@ -33,7 +26,7 @@ import org.apache.commons.math3.exception.util.LocalizedFormats
  * a double.
  *
  */
-class DefaultTransformer : NumberTransformer, java.io.Serializable {
+class DefaultTransformer : NumberTransformer {
     /**
      * @param o  the object that gets transformed.
      * @return a double primitive representation of the Object o.
@@ -42,13 +35,9 @@ class DefaultTransformer : NumberTransformer, java.io.Serializable {
      * cannot successfully be transformed
      * @see [Commons Collections Transformer](http://commons.apache.org/collections/api-release/org/apache/commons/collections/Transformer.html)
      */
-    @Throws(NullArgumentException::class, MathIllegalArgumentException::class)
-    fun transform(o: Any?): Double {
-        if (o == null) {
-            throw NullArgumentException(LocalizedFormats.OBJECT_TRANSFORMATION)
-        }
+    fun transform(o: Any): Double {
         return if (o is Number) {
-            o.doubleValue()
+            o.toDouble()
         } else try {
             o.toString().toDouble()
         } catch (e: NumberFormatException) {

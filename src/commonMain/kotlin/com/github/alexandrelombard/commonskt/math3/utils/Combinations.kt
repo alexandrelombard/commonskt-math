@@ -1,6 +1,3 @@
-package com.github.alexandrelombard.commonskt.math3.utils
-
-
 /*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -17,17 +14,15 @@ package com.github.alexandrelombard.commonskt.math3.utils
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.github.alexandrelombard.commonskt.math3.utils
+
 import com.github.alexandrelombard.commonskt.math3.exception.DimensionMismatchException
 import com.github.alexandrelombard.commonskt.math3.exception.MathInternalError
+import com.github.alexandrelombard.commonskt.math3.exception.OutOfRangeException
 import com.github.alexandrelombard.commonskt.math3.utils.MathArrays.natural
-import org.apache.commons.math3.exception.DimensionMismatchException
-import org.apache.commons.math3.exception.MathInternalError
-import org.apache.commons.math3.exception.OutOfRangeException
-
 
 /**
- * Utility to create [
- * combinations](http://en.wikipedia.org/wiki/Combination) `(n, k)` of `k` elements in a set of
+ * Utility to create [combinations](http://en.wikipedia.org/wiki/Combination) `(n, k)` of `k` elements in a set of
  * `n` elements.
  *
  * @since 3.3
@@ -36,7 +31,7 @@ class Combinations private constructor(
     n: Int,
     k: Int,
     iterationOrder: IterationOrder
-) : Iterable<IntArray?> {
+) : Iterable<IntArray> {
     /**
      * Gets the size of the set from which combinations are drawn.
      *
@@ -120,7 +115,7 @@ class Combinations private constructor(
      *
      * @return a lexicographic comparator.
      */
-    fun comparator(): java.util.Comparator<IntArray> {
+    fun comparator(): Comparator<IntArray> {
         return LexicographicComparator(n, k)
     }
 
@@ -144,7 +139,7 @@ class Combinations private constructor(
         /** Size of subsets returned by the iterator  */
         private val k: Int
     ) :
-        MutableIterator<IntArray?> {
+        MutableIterator<IntArray> {
 
         /**
          * c[1], ..., c[k] stores the next combination; c[k + 1], c[k + 2] are
@@ -161,7 +156,7 @@ class Combinations private constructor(
         private var more = true
 
         /** Marker: smallest index such that c[j + 1] > j  */
-        private var j: Int
+        private var j: Int = 0
 
         /**
          * {@inheritDoc}
@@ -179,7 +174,7 @@ class Combinations private constructor(
             }
             // Copy return value (prepared by last activation)
             val ret = IntArray(k)
-            java.lang.System.arraycopy(c, 1, ret, 0, k)
+            c.copyInto(ret, 0, 1, k + 1)
 
             // Prepare next iteration
             // T2 and T6 loop
@@ -241,16 +236,16 @@ class Combinations private constructor(
             c = IntArray(k + 3)
             if (k == 0 || k >= n) {
                 more = false
-                return
+            } else {
+                // Initialize c to start with lexicographically first k-set
+                for (i in 1..k) {
+                    c[i] = i - 1
+                }
+                // Initialize sentinels
+                c[k + 1] = n
+                c[k + 2] = 0
+                j = k // Set up invariant: j is smallest index such that c[j + 1] > j
             }
-            // Initialize c to start with lexicographically first k-set
-            for (i in 1..k) {
-                c[i] = i - 1
-            }
-            // Initialize sentinels
-            c[k + 1] = n
-            c[k + 2] = 0
-            j = k // Set up invariant: j is smallest index such that c[j + 1] > j
         }
     }
 
@@ -266,7 +261,7 @@ class Combinations private constructor(
         /** Singleton array  */
         private val singleton: IntArray
     ) :
-        MutableIterator<IntArray?> {
+        MutableIterator<IntArray> {
 
         /** True on initialization, false after first call to next  */
         private var more = true
@@ -308,8 +303,7 @@ class Combinations private constructor(
         private val n: Int,
         /** Number of elements in each combination.  */
         private val k: Int
-    ) : java.util.Comparator<IntArray?>,
-        java.io.Serializable {
+    ) : Comparator<IntArray> {
 
         /**
          * {@inheritDoc}
@@ -320,21 +314,21 @@ class Combinations private constructor(
          * within the interval [0, `n`).
          */
         override fun compare(
-            c1: IntArray,
-            c2: IntArray
+            a: IntArray,
+            b: IntArray
         ): Int {
-            if (c1.size != k) {
-                throw DimensionMismatchException(c1.size, k)
+            if (a.size != k) {
+                throw DimensionMismatchException(a.size, k)
             }
-            if (c2.size != k) {
-                throw DimensionMismatchException(c2.size, k)
+            if (b.size != k) {
+                throw DimensionMismatchException(b.size, k)
             }
 
             // Method "lexNorm" works with ordered arrays.
-            val c1s = MathArrays.copyOf(c1)
-            Arrays.sort(c1s)
-            val c2s = MathArrays.copyOf(c2)
-            Arrays.sort(c2s)
+            val c1s = MathArrays.copyOf(a)
+            c1s.sort()
+            val c2s = MathArrays.copyOf(b)
+            c2s.sort()
             val v1 = lexNorm(c1s)
             val v2 = lexNorm(c2s)
             return if (v1 < v2) {

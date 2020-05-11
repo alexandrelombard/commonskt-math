@@ -1,7 +1,3 @@
-package com.github.alexandrelombard.commonskt.math3.utils
-import com.github.alexandrelombard.commonskt.math3.exception.MathIllegalArgumentException
-
-
 /*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -18,8 +14,11 @@ import com.github.alexandrelombard.commonskt.math3.exception.MathIllegalArgument
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import org.apache.commons.math3.exception.MathIllegalArgumentException
+package com.github.alexandrelombard.commonskt.math3.utils
 
+import kotlin.reflect.KClass
+
+import com.github.alexandrelombard.commonskt.math3.exception.MathIllegalArgumentException
 
 /**
  * This TansformerMap automates the transformation of mixed object types.
@@ -27,24 +26,24 @@ import org.apache.commons.math3.exception.MathIllegalArgumentException
  * based on the Class of the object handed to the Maps
  * `double transform(Object o)` method.
  */
-class TransformerMap : NumberTransformer, java.io.Serializable {
+class TransformerMap : NumberTransformer {
     /**
      * A default Number Transformer for Numbers and numeric Strings.
      */
-    private var defaultTransformer: NumberTransformer? = null
+    private var defaultTransformer: NumberTransformer = DefaultTransformer()
 
     /**
      * The internal Map.
      */
-    private var map: MutableMap<java.lang.Class<*>?, NumberTransformer?>? = null
+    private val map: MutableMap<KClass<*>, NumberTransformer> = hashMapOf()
 
     /**
      * Tests if a Class is present in the TransformerMap.
      * @param key Class to check
      * @return true|false
      */
-    fun containsClass(key: java.lang.Class<*>?): Boolean {
-        return map!!!!.containsKey(key)
+    fun containsClass(key: KClass<*>): Boolean {
+        return map.containsKey(key)
     }
 
     /**
@@ -52,8 +51,8 @@ class TransformerMap : NumberTransformer, java.io.Serializable {
      * @param value NumberTransformer to check
      * @return true|false
      */
-    fun containsTransformer(value: NumberTransformer?): Boolean {
-        return map!!!!.containsValue(value)
+    fun containsTransformer(value: NumberTransformer): Boolean {
+        return map.containsValue(value)
     }
 
     /**
@@ -62,8 +61,8 @@ class TransformerMap : NumberTransformer, java.io.Serializable {
      * @param key The Class of the object
      * @return the mapped NumberTransformer or null.
      */
-    fun getTransformer(key: java.lang.Class<*>?): NumberTransformer? {
-        return map!!!!.get(key)
+    fun getTransformer(key: KClass<*>): NumberTransformer? {
+        return map.get(key)
     }
 
     /**
@@ -74,8 +73,8 @@ class TransformerMap : NumberTransformer, java.io.Serializable {
      * @param transformer The NumberTransformer
      * @return the replaced transformer if one is present
      */
-    fun putTransformer(key: java.lang.Class<*>?, transformer: NumberTransformer?): NumberTransformer? {
-        return map!!!!.put(key, transformer)
+    fun putTransformer(key: KClass<*>, transformer: NumberTransformer): NumberTransformer? {
+        return map.put(key, transformer)
     }
 
     /**
@@ -84,23 +83,23 @@ class TransformerMap : NumberTransformer, java.io.Serializable {
      * @return the removed transformer if one is present or
      * null if none was present.
      */
-    fun removeTransformer(key: java.lang.Class<*>?): NumberTransformer? {
-        return map!!!!.remove(key)
+    fun removeTransformer(key: KClass<*>): NumberTransformer? {
+        return map.remove(key)
     }
 
     /**
      * Clears all the Class to Transformer mappings.
      */
     fun clear() {
-        map!!!!.clear()
+        map.clear()
     }
 
     /**
      * Returns the Set of Classes used as keys in the map.
      * @return Set of Classes
      */
-    fun classes(): MutableSet<java.lang.Class<*>?>? {
-        return map!!!!.keys
+    fun classes(): MutableSet<KClass<*>> {
+        return map.keys
     }
 
     /**
@@ -108,8 +107,8 @@ class TransformerMap : NumberTransformer, java.io.Serializable {
      * in the map.
      * @return Set of NumberTransformers
      */
-    fun transformers(): MutableCollection<NumberTransformer?>? {
-        return map!!!!.values
+    fun transformers(): MutableCollection<NumberTransformer> {
+        return map.values
     }
 
     /**
@@ -122,13 +121,12 @@ class TransformerMap : NumberTransformer, java.io.Serializable {
      * transformed into a Double.
      * @see org.apache.commons.math3.util.NumberTransformer.transform
      */
-    @Throws(MathIllegalArgumentException::class)
-    override fun transform(o: Any?): Double {
+    override fun transform(o: Any): Double {
         var value = Double.NaN
         if (o is Number || o is String) {
-            value = defaultTransformer!!.transform(o)
+            value = defaultTransformer.transform(o)
         } else {
-            val trans = getTransformer(o.javaClass)
+            val trans = getTransformer(o::class)
             if (trans != null) {
                 value = trans.transform(o)
             }
@@ -146,11 +144,11 @@ class TransformerMap : NumberTransformer, java.io.Serializable {
             if (defaultTransformer != rhs!!.defaultTransformer) {
                 return false
             }
-            if (map!!!!.size != rhs.map!!!!.size) {
+            if (map.size != rhs.map.size) {
                 return false
             }
-            for (entry in map!!!!.entries) {
-                if (entry!!.value != rhs.map!!!!.get(entry!!.key)) {
+            for (entry in map.entries) {
+                if (entry.value != rhs.map[entry.key]) {
                     return false
                 }
             }
@@ -162,7 +160,7 @@ class TransformerMap : NumberTransformer, java.io.Serializable {
     /** {@inheritDoc}  */
     override fun hashCode(): Int {
         var hash = defaultTransformer.hashCode()
-        for (t in map!!!!.values) {
+        for (t in map.values) {
             hash = hash * 31 + t.hashCode()
         }
         return hash
@@ -171,13 +169,5 @@ class TransformerMap : NumberTransformer, java.io.Serializable {
     companion object {
         /** Serializable version identifier  */
         private const val serialVersionUID = 4605318041528645258L
-    }
-
-    /**
-     * Build a map containing only the default transformer.
-     */
-    init {
-        map = HashMap<java.lang.Class<*>?, NumberTransformer?>()
-        defaultTransformer = DefaultTransformer()
     }
 }

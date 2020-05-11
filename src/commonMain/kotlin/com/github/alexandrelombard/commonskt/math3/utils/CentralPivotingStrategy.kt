@@ -1,7 +1,3 @@
-package com.github.alexandrelombard.commonskt.math3.utils
-import com.github.alexandrelombard.commonskt.math3.exception.MathIllegalArgumentException
-
-
 /*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -18,14 +14,15 @@ import com.github.alexandrelombard.commonskt.math3.exception.MathIllegalArgument
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import org.apache.commons.math3.exception.MathIllegalArgumentException
+package com.github.alexandrelombard.commonskt.math3.utils
 
+import com.github.alexandrelombard.commonskt.math3.exception.MathIllegalArgumentException
 
 /**
  * A mid point strategy based on the average of begin and end indices.
  * @since 3.4
  */
-class CentralPivotingStrategy : PivotingStrategyInterface, java.io.Serializable {
+class CentralPivotingStrategy : PivotingStrategyInterface {
     /**
      * {@inheritDoc}
      * This in particular picks a average of begin and end indices
@@ -33,8 +30,7 @@ class CentralPivotingStrategy : PivotingStrategyInterface, java.io.Serializable 
      * the first and the last element indices of the array slice
      * @throws MathIllegalArgumentException when indices exceeds range
      */
-    @Throws(MathIllegalArgumentException::class)
-    fun pivotIndex(work: DoubleArray?, begin: Int, end: Int): Int {
+    override fun pivotIndex(work: DoubleArray, begin: Int, end: Int): Int {
         MathArrays.verifyValues(work, begin, end - begin)
         return begin + (end - begin) / 2
     }

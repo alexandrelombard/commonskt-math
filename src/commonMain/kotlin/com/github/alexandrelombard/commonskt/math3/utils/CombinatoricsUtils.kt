@@ -1,6 +1,3 @@
-package com.github.alexandrelombard.commonskt.math3.utils
-
-
 /*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -17,15 +14,12 @@ package com.github.alexandrelombard.commonskt.math3.utils
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.github.alexandrelombard.commonskt.math3.utils
+
 import com.github.alexandrelombard.commonskt.math3.exception.MathArithmeticException
 import com.github.alexandrelombard.commonskt.math3.exception.NotPositiveException
 import com.github.alexandrelombard.commonskt.math3.exception.NumberIsTooLargeException
 import com.github.alexandrelombard.commonskt.math3.exception.util.LocalizedFormats
-import org.apache.commons.math3.exception.MathArithmeticException
-import org.apache.commons.math3.exception.NotPositiveException
-import org.apache.commons.math3.exception.NumberIsTooLargeException
-import org.apache.commons.math3.exception.util.LocalizedFormats
-
 
 /**
  * Combinatorial utilities.
@@ -74,7 +68,6 @@ object CombinatoricsUtils {
      * @throws MathArithmeticException if the result is too large to be
      * represented by a long integer.
      */
-    @Throws(NotPositiveException::class, NumberIsTooLargeException::class, MathArithmeticException::class)
     fun binomialCoefficient(n: Int, k: Int): Long {
         checkBinomial(n, k)
         if (n == k || k == 0) {
@@ -178,8 +171,7 @@ object CombinatoricsUtils {
     }
 
     /**
-     * Returns the natural `log` of the [ Binomial
- * Coefficient](http://mathworld.wolfram.com/BinomialCoefficient.html), "`n choose k`", the number of
+     * Returns the natural `log` of the [ Binomial Coefficient](http://mathworld.wolfram.com/BinomialCoefficient.html), "`n choose k`", the number of
      * `k`-element subsets that can be selected from an
      * `n`-element set.
      *
@@ -198,21 +190,20 @@ object CombinatoricsUtils {
      * @throws MathArithmeticException if the result is too large to be
      * represented by a long integer.
      */
-    @Throws(NotPositiveException::class, NumberIsTooLargeException::class, MathArithmeticException::class)
     fun binomialCoefficientLog(n: Int, k: Int): Double {
         checkBinomial(n, k)
         if (n == k || k == 0) {
-            return 0
+            return 0.0
         }
         if (k == 1 || k == n - 1) {
-            return FastMath.log(n)
+            return FastMath.log(n.toDouble())
         }
 
         /*
          * For values small enough to do exact integer computation,
          * return the log of the exact value
          */if (n < 67) {
-            return FastMath.log(binomialCoefficient(n, k))
+            return FastMath.log(binomialCoefficient(n, k).toDouble())
         }
 
         /*
@@ -232,12 +223,12 @@ object CombinatoricsUtils {
 
         // n!/(n-k)!
         for (i in n - k + 1..n) {
-            logSum += FastMath.log(i)
+            logSum += FastMath.log(i.toDouble())
         }
 
         // divide by k!
         for (i in 2..k) {
-            logSum -= FastMath.log(i)
+            logSum -= FastMath.log(i.toDouble())
         }
         return logSum
     }
@@ -266,7 +257,6 @@ object CombinatoricsUtils {
      * @throws MathArithmeticException if `n > 20`: The factorial value is too
      * large to fit in a `long`.
      */
-    @Throws(NotPositiveException::class, MathArithmeticException::class)
     fun factorial(n: Int): Long {
         if (n < 0) {
             throw NotPositiveException(
@@ -293,7 +283,6 @@ object CombinatoricsUtils {
      * @return `n!`
      * @throws NotPositiveException if `n < 0`.
      */
-    @Throws(NotPositiveException::class)
     fun factorialDouble(n: Int): Double {
         if (n < 0) {
             throw NotPositiveException(
@@ -313,7 +302,6 @@ object CombinatoricsUtils {
      * @return `n!`
      * @throws NotPositiveException if `n < 0`.
      */
-    @Throws(NotPositiveException::class)
     fun factorialLog(n: Int): Double {
         if (n < 0) {
             throw NotPositiveException(
@@ -322,11 +310,11 @@ object CombinatoricsUtils {
             )
         }
         if (n < 21) {
-            return FastMath.log(FACTORIALS!![n])
+            return FastMath.log(FACTORIALS[n].toDouble())
         }
         var logSum = 0.0
         for (i in 2..n) {
-            logSum += FastMath.log(i)
+            logSum += FastMath.log(i.toDouble())
         }
         return logSum
     }
@@ -350,7 +338,6 @@ object CombinatoricsUtils {
      * k between 20 and n-2 (S(n,n-1) is handled specifically and does not overflow)
      * @since 3.1
      */
-    @Throws(NotPositiveException::class, NumberIsTooLargeException::class, MathArithmeticException::class)
     fun stirlingS2(n: Int, k: Int): Long {
         if (k < 0) {
             throw NotPositiveException(k)
@@ -358,29 +345,7 @@ object CombinatoricsUtils {
         if (k > n) {
             throw NumberIsTooLargeException(k, n, true)
         }
-        var stirlingS2: Array<LongArray?> = STIRLING_S2.get()
-        if (stirlingS2 == null) {
-            // the cache has never been initialized, compute the first numbers
-            // by direct recurrence relation
-
-            // as S(26,9) = 11201516780955125625 is larger than Long.MAX_VALUE
-            // we must stop computation at row 26
-            val maxIndex = 26
-            stirlingS2 = arrayOfNulls<LongArray?>(maxIndex)
-            stirlingS2[0] = longArrayOf(1L)
-            for (i in 1 until stirlingS2.size) {
-                stirlingS2[i] = LongArray(i + 1)
-                stirlingS2[i]!![0] = 0
-                stirlingS2[i]!![1] = 1
-                stirlingS2[i]!![i] = 1
-                for (j in 2 until i) {
-                    stirlingS2[i]!![j] = j * stirlingS2[i - 1]!![j] + stirlingS2[i - 1]!![j - 1]
-                }
-            }
-
-            // atomically save the cache
-            STIRLING_S2.compareAndSet(null, stirlingS2)
-        }
+        val stirlingS2: Array<LongArray?> = STIRLING_S2.get()
         return if (n < stirlingS2.size) {
             // the number is in the small cache
             stirlingS2[n]!![k]
@@ -450,7 +415,6 @@ object CombinatoricsUtils {
      * @throws NotPositiveException if `n < 0`.
      * @throws NumberIsTooLargeException if `k > n`.
      */
-    @Throws(NumberIsTooLargeException::class, NotPositiveException::class)
     fun checkBinomial(
         n: Int,
         k: Int

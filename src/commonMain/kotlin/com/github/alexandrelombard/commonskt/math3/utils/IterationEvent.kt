@@ -32,7 +32,7 @@ class IterationEvent
  * @param iterations the number of iterations performed at the time
  * `this` event is created
  */(
-    source: Any?,
+    source: Any,
     /** The number of iterations performed so far.  */
     val iterations: Int
 ) : EventObject(source) {

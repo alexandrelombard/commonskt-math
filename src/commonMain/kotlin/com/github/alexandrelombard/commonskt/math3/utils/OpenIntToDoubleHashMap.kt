@@ -35,7 +35,7 @@ import kotlin.jvm.Transient
  * modified during iteration.
  * @since 2.0
  */
-class OpenIntToDoubleHashMap : java.io.Serializable {
+class OpenIntToDoubleHashMap {
     /** Keys table.  */
     private var keys: IntArray
 

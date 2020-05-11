@@ -1,4 +1,5 @@
 package com.github.alexandrelombard.commonskt.math3.utils
+import com.github.alexandrelombard.commonskt.math3.Field
 import com.github.alexandrelombard.commonskt.math3.FieldElement
 import com.github.alexandrelombard.commonskt.math3.utils.FastMath.ceil
 
@@ -37,9 +38,9 @@ import kotlin.jvm.Transient
  * @param <T> the type of the field elements
  * @since 2.0
 </T> */
-class OpenIntToFieldHashMap<T : FieldElement<T?>?> : java.io.Serializable {
+class OpenIntToFieldHashMap<T : FieldElement<T?>?> {
     /** Field to which the elements belong.  */
-    private val field: Field<T?>?
+    private val field: Field<T>
 
     /** Keys table.  */
     private var keys: IntArray?
@@ -67,10 +68,10 @@ class OpenIntToFieldHashMap<T : FieldElement<T?>?> : java.io.Serializable {
      * Build an empty map with default size and using zero for missing entries.
      * @param field field to which the elements belong
      */
-    constructor(field: Field<T?>?) : this(
+    constructor(field: Field<T>) : this(
         field,
         DEFAULT_EXPECTED_SIZE,
-        field.getZero()
+        field.zero
     ) {
     }
 
@@ -79,7 +80,7 @@ class OpenIntToFieldHashMap<T : FieldElement<T?>?> : java.io.Serializable {
      * @param field field to which the elements belong
      * @param missingEntries value to return when a missing entry is fetched
      */
-    constructor(field: Field<T?>?, missingEntries: T?) : this(
+    constructor(field: Field<T>, missingEntries: T) : this(
         field,
         DEFAULT_EXPECTED_SIZE,
         missingEntries
@@ -91,7 +92,7 @@ class OpenIntToFieldHashMap<T : FieldElement<T?>?> : java.io.Serializable {
      * @param field field to which the elements belong
      * @param expectedSize expected number of elements in the map
      */
-    constructor(field: Field<T?>?, expectedSize: Int) : this(field, expectedSize, field.getZero()) {}
+    constructor(field: Field<T>, expectedSize: Int) : this(field, expectedSize, field.getZero()) {}
 
     /**
      * Build an empty map with specified size.
@@ -100,8 +101,8 @@ class OpenIntToFieldHashMap<T : FieldElement<T?>?> : java.io.Serializable {
      * @param missingEntries value to return when a missing entry is fetched
      */
     constructor(
-        field: Field<T?>?, expectedSize: Int,
-        missingEntries: T?
+        field: Field<T>, expectedSize: Int,
+        missingEntries: T
     ) {
         this.field = field
         val capacity = computeCapacity(expectedSize)
@@ -116,8 +117,8 @@ class OpenIntToFieldHashMap<T : FieldElement<T?>?> : java.io.Serializable {
      * Copy constructor.
      * @param source map to copy
      */
-    constructor(source: OpenIntToFieldHashMap<T?>?) {
-        field = source!!.field
+    constructor(source: OpenIntToFieldHashMap<T>) {
+        field = source.field
         val length = source.keys!!.size
         keys = IntArray(length)
         java.lang.System.arraycopy(source.keys, 0, keys, 0, length)
@@ -193,7 +194,7 @@ class OpenIntToFieldHashMap<T : FieldElement<T?>?> : java.io.Serializable {
      * has been modified during iteration.
      * @return iterator over the map elements
      */
-    operator fun iterator(): Iterator? {
+    operator fun iterator(): Iterator {
         return Iterator()
     }
 
@@ -332,7 +333,7 @@ class OpenIntToFieldHashMap<T : FieldElement<T?>?> : java.io.Serializable {
     }
 
     /** Iterator class for the map.  */
-    inner class Iterator private constructor() {
+    inner class Iterator constructor() {
         /** Reference modification count.  */
         private val referenceCount: Int
 
@@ -356,7 +357,6 @@ class OpenIntToFieldHashMap<T : FieldElement<T?>?> : java.io.Serializable {
          * @exception ConcurrentModificationException if the map is modified during iteration
          * @exception NoSuchElementException if there is no element left in the map
          */
-        @Throws(ConcurrentModificationException::class, NoSuchElementException::class)
         fun key(): Int {
             if (referenceCount != count) {
                 throw ConcurrentModificationException()
@@ -373,7 +373,6 @@ class OpenIntToFieldHashMap<T : FieldElement<T?>?> : java.io.Serializable {
          * @exception ConcurrentModificationException if the map is modified during iteration
          * @exception NoSuchElementException if there is no element left in the map
          */
-        @Throws(ConcurrentModificationException::class, NoSuchElementException::class)
         fun value(): T? {
             if (referenceCount != count) {
                 throw ConcurrentModificationException()
@@ -389,7 +388,6 @@ class OpenIntToFieldHashMap<T : FieldElement<T?>?> : java.io.Serializable {
          * @exception ConcurrentModificationException if the map is modified during iteration
          * @exception NoSuchElementException if there is no element left in the map
          */
-        @Throws(ConcurrentModificationException::class, NoSuchElementException::class)
         fun advance() {
             if (referenceCount != count) {
                 throw ConcurrentModificationException()
@@ -403,7 +401,7 @@ class OpenIntToFieldHashMap<T : FieldElement<T?>?> : java.io.Serializable {
                 while (states!![++next] != FULL) { // NOPMD
                     // nothing to do
                 }
-            } catch (e: ArrayIndexOutOfBoundsException) {
+            } catch (e: IndexOutOfBoundsException) {
                 next = -2
                 if (current < 0) {
                     throw NoSuchElementException()
@@ -427,19 +425,6 @@ class OpenIntToFieldHashMap<T : FieldElement<T?>?> : java.io.Serializable {
                 // ignored
             }
         }
-    }
-
-    /**
-     * Read a serialized object.
-     * @param stream input stream
-     * @throws IOException if object cannot be read
-     * @throws ClassNotFoundException if the class corresponding
-     * to the serialized object cannot be found
-     */
-    @Throws(IOException::class, ClassNotFoundException::class)
-    private fun readObject(stream: ObjectInputStream?) {
-        stream.defaultReadObject()
-        count = 0
     }
 
     /** Build an array of elements.

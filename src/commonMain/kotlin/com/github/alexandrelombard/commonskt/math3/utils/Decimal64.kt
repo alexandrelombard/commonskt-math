@@ -1,6 +1,3 @@
-package com.github.alexandrelombard.commonskt.math3.utils
-
-
 /*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -17,6 +14,9 @@ package com.github.alexandrelombard.commonskt.math3.utils
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.github.alexandrelombard.commonskt.math3.utils
+
+import com.github.alexandrelombard.commonskt.math3.Field
 import com.github.alexandrelombard.commonskt.math3.RealFieldElement
 import com.github.alexandrelombard.commonskt.math3.exception.DimensionMismatchException
 import com.github.alexandrelombard.commonskt.math3.utils.FastMath.IEEEremainder
@@ -51,10 +51,6 @@ import com.github.alexandrelombard.commonskt.math3.utils.FastMath.sqrt
 import com.github.alexandrelombard.commonskt.math3.utils.FastMath.tan
 import com.github.alexandrelombard.commonskt.math3.utils.FastMath.tanh
 import com.github.alexandrelombard.commonskt.math3.utils.MathArrays.linearCombination
-import org.apache.commons.math3.Field
-import org.apache.commons.math3.RealFieldElement
-import org.apache.commons.math3.exception.DimensionMismatchException
-
 
 /**
  * This class wraps a `double` value in an object. It is similar to the
@@ -71,40 +67,33 @@ class Decimal64
  */(
     /** The primitive `double` value of this object.  */
     override val real: Double
-) : Number(), RealFieldElement<Decimal64?>,
-    Comparable<Decimal64?> {
+) : Number(), RealFieldElement<Decimal64>, Comparable<Decimal64> {
+
     companion object {
         /** The constant value of `0d` as a `Decimal64`.  */
-        var ZERO: Decimal64? = null
+        val ZERO: Decimal64 = Decimal64(0.0)
 
         /** The constant value of `1d` as a `Decimal64`.  */
-        var ONE: Decimal64? = null
+        val ONE: Decimal64 = Decimal64(1.0)
 
         /**
          * The constant value of [Double.NEGATIVE_INFINITY] as a
          * `Decimal64`.
          */
-        var NEGATIVE_INFINITY: Decimal64? = null
+        val NEGATIVE_INFINITY: Decimal64 = Decimal64(Double.NEGATIVE_INFINITY)
 
         /**
          * The constant value of [Double.POSITIVE_INFINITY] as a
          * `Decimal64`.
          */
-        var POSITIVE_INFINITY: Decimal64? = null
+        var POSITIVE_INFINITY: Decimal64 = Decimal64(Double.POSITIVE_INFINITY)
 
         /** The constant value of [Double.NaN] as a `Decimal64`.  */
-        var NAN: Decimal64? = null
+        var NAN: Decimal64 = Decimal64(Double.NaN)
 
         /**  */
         private const val serialVersionUID = 20120227L
 
-        init {
-            ZERO = Decimal64(0.0)
-            ONE = Decimal64(1.0)
-            NEGATIVE_INFINITY = Decimal64(Double.NEGATIVE_INFINITY)
-            POSITIVE_INFINITY = Decimal64(Double.POSITIVE_INFINITY)
-            NAN = Decimal64(Double.NaN)
-        }
     }
 
     /** {@inheritDoc}
@@ -115,7 +104,7 @@ class Decimal64
      */
     /** {@inheritDoc}  */
     override val field: Field<Decimal64>
-        get() = Decimal64Field.getInstance()
+        get() = Decimal64Field.instance
 
     /**
      * {@inheritDoc}
@@ -200,16 +189,15 @@ class Decimal64
      *
      * The current implementation performs casting to a `byte`.
      */
-    override fun byteValue(): Byte {
+    override fun toByte(): Byte {
         return real.toByte()
     }
 
-    /**
-     * {@inheritDoc}
-     *
-     * The current implementation performs casting to a `short`.
-     */
-    override fun shortValue(): Short {
+    override fun toChar(): Char {
+        return real.toChar()
+    }
+
+    override fun toShort(): Short {
         return real.toShort()
     }
 
@@ -218,7 +206,7 @@ class Decimal64
      *
      * The current implementation performs casting to a `int`.
      */
-    override fun intValue(): Int {
+    override fun toInt(): Int {
         return real.toInt()
     }
 
@@ -227,7 +215,7 @@ class Decimal64
      *
      * The current implementation performs casting to a `long`.
      */
-    override fun longValue(): Long {
+    override fun toLong(): Long {
         return real.toLong()
     }
 
@@ -236,12 +224,12 @@ class Decimal64
      *
      * The current implementation performs casting to a `float`.
      */
-    override fun floatValue(): Float {
+    override fun toFloat(): Float {
         return real.toFloat()
     }
 
     /** {@inheritDoc}  */
-    override fun doubleValue(): Double {
+    override fun toDouble(): Double {
         return real
     }
     /*
@@ -256,17 +244,16 @@ class Decimal64
      *
      * @see Double.compareTo
      */
-    override operator fun compareTo(o: Decimal64): Int {
-        return java.lang.Double.compare(real, o.real)
+    override operator fun compareTo(other: Decimal64): Int {
+        return real.compareTo(other.real)
     }
     /*
      * Methods from the Object abstract class.
      */
     /** {@inheritDoc}  */
-    override fun equals(obj: Any?): Boolean {
-        if (obj is Decimal64) {
-            return java.lang.Double.doubleToLongBits(real) == java.lang.Double
-                .doubleToLongBits(obj.real)
+    override fun equals(other: Any?): Boolean {
+        if (other is Decimal64) {
+            return real.toBits() == other.real.toBits()
         }
         return false
     }
@@ -280,7 +267,7 @@ class Decimal64
      * @see Double.hashCode
      */
     override fun hashCode(): Int {
-        val v: Long = java.lang.Double.doubleToLongBits(real)
+        val v: Long = real.toBits()
         return (v xor (v ushr 32)).toInt()
     }
 
@@ -293,7 +280,7 @@ class Decimal64
      * @see Double.toString
      */
     override fun toString(): String {
-        return java.lang.Double.toString(real)
+        return real.toString()
     }
     /*
      * Methods inspired by the Double class.
@@ -305,7 +292,7 @@ class Decimal64
      * @return `true` if `this` number is infinite
      */
     val isInfinite: Boolean
-        get() = java.lang.Double.isInfinite(real)
+        get() = real.isInfinite()
 
     /**
      * Returns `true` if `this` double precision number is
@@ -314,7 +301,7 @@ class Decimal64
      * @return `true` if `this` is `NaN`
      */
     val isNaN: Boolean
-        get() = java.lang.Double.isNaN(real)
+        get() = real.isNaN()
 
     /** {@inheritDoc}
      * @since 3.2
@@ -604,7 +591,6 @@ class Decimal64
     /** {@inheritDoc}
      * @since 3.2
      */
-    @Throws(DimensionMismatchException::class)
     override fun linearCombination(a: Array<Decimal64>?, b: Array<Decimal64>?): Decimal64 {
         if (a!!.size != b!!.size) {
             throw DimensionMismatchException(a.size, b.size)
@@ -621,7 +607,6 @@ class Decimal64
     /** {@inheritDoc}
      * @since 3.2
      */
-    @Throws(DimensionMismatchException::class)
     override fun linearCombination(a: DoubleArray?, b: Array<Decimal64>?): Decimal64 {
         if (a!!.size != b!!.size) {
             throw DimensionMismatchException(a.size, b.size)

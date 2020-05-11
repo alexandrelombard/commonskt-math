@@ -1,7 +1,3 @@
-package com.github.alexandrelombard.commonskt.math3.utils
-import com.github.alexandrelombard.commonskt.math3.exception.MathIllegalArgumentException
-
-
 /*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -18,8 +14,9 @@ import com.github.alexandrelombard.commonskt.math3.exception.MathIllegalArgument
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import org.apache.commons.math3.exception.MathIllegalArgumentException
+package com.github.alexandrelombard.commonskt.math3.utils
 
+import com.github.alexandrelombard.commonskt.math3.exception.MathIllegalArgumentException
 
 /**
  * Subclasses implementing this interface can transform Objects to doubles.
@@ -36,6 +33,5 @@ interface NumberTransformer {
      * @return the double value of the Object.
      * @throws MathIllegalArgumentException if the Object can not be transformed into a Double.
      */
-    @Throws(MathIllegalArgumentException::class)
-    fun transform(o: Any?): Double
+    fun transform(o: Any): Double
 }

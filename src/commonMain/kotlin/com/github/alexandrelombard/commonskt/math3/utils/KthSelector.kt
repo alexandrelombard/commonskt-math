@@ -1,8 +1,3 @@
-package com.github.alexandrelombard.commonskt.math3.utils
-import com.github.alexandrelombard.commonskt.math3.exception.NullArgumentException
-import com.github.alexandrelombard.commonskt.math3.utils.FastMath.min
-
-
 /*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -19,8 +14,9 @@ import com.github.alexandrelombard.commonskt.math3.utils.FastMath.min
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import org.apache.commons.math3.exception.NullArgumentException
+package com.github.alexandrelombard.commonskt.math3.utils
 
+import com.github.alexandrelombard.commonskt.math3.utils.FastMath.min
 
 /**
  * A Simple K<sup>th</sup> selector implementation to pick up the
@@ -28,7 +24,7 @@ import org.apache.commons.math3.exception.NullArgumentException
  * numbers.
  * @since 3.4
  */
-class KthSelector : java.io.Serializable {
+class KthSelector {
     /** A [PivotingStrategyInterface] used for pivoting   */
     private val pivotingStrategy: PivotingStrategyInterface
 
@@ -43,7 +39,6 @@ class KthSelector : java.io.Serializable {
      * Constructor with specified pivoting strategy
      *
      * @param pivotingStrategy pivoting strategy to use
-     * @throws NullArgumentException when pivotingStrategy is null
      * @see MedianOf3PivotingStrategy
      *
      * @see RandomPivotingStrategy
@@ -51,7 +46,6 @@ class KthSelector : java.io.Serializable {
      * @see CentralPivotingStrategy
      */
     constructor(pivotingStrategy: PivotingStrategyInterface) {
-        MathUtils.checkNotNull(pivotingStrategy)
         this.pivotingStrategy = pivotingStrategy
     }
 

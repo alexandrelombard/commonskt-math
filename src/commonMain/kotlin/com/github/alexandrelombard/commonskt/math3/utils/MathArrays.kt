@@ -792,7 +792,7 @@ object MathArrays {
      */
     fun copyOf(source: IntArray, len: Int = source.size): IntArray {
         val output = IntArray(len)
-        java.lang.System.arraycopy(source, 0, output, 0, FastMath.min(len, source.size))
+        source.copyInto(output, 0, 0, FastMath.min(len, source.size))
         return output
     }
     /**
@@ -812,7 +812,7 @@ object MathArrays {
      */
     fun copyOf(source: DoubleArray, len: Int = source.size): DoubleArray {
         val output = DoubleArray(len)
-        java.lang.System.arraycopy(source, 0, output, 0, FastMath.min(len, source.size))
+        source.copyInto(output, 0, 0, FastMath.min(len, source.size))
         return output
     }
 
@@ -827,7 +827,7 @@ object MathArrays {
     fun copyOfRange(source: DoubleArray, from: Int, to: Int): DoubleArray {
         val len = to - from
         val output = DoubleArray(len)
-        java.lang.System.arraycopy(source, from, output, 0, FastMath.min(len, source.size - from))
+        source.copyInto(output, 0, from, from + FastMath.min(len, source.size - from))
         return output
     }
 
@@ -839,8 +839,7 @@ object MathArrays {
      * preserve accuracy and reduce cancellation effects.
      * <br></br>
      * It is based on the 2005 paper
-     * [
- * Accurate Sum and Dot Product](http://citeseerx.ist.psu.edu/viewdoc/summary?doi=10.1.1.2.1547) by Takeshi Ogita, Siegfried M. Rump,
+     * [Accurate Sum and Dot Product](http://citeseerx.ist.psu.edu/viewdoc/summary?doi=10.1.1.2.1547) by Takeshi Ogita, Siegfried M. Rump,
      * and Shin'ichi Oishi published in SIAM J. Sci. Comput.
      *
      * @param a Factors.
@@ -1043,10 +1042,10 @@ object MathArrays {
 
         // split a3 and b3 as one 26 bits number and one 27 bits number
         val a3High: Double =
-            Double.fromBits(java.lang.Double.doubleToRawLongBits(a3) and (-1L shl 27))
+            Double.fromBits(a3.toRawBits() and (-1L shl 27))
         val a3Low = a3 - a3High
         val b3High: Double =
-            Double.fromBits(java.lang.Double.doubleToRawLongBits(b3) and (-1L shl 27))
+            Double.fromBits(b3.toRawBits() and (-1L shl 27))
         val b3Low = b3 - b3High
 
         // accurate multiplication a3 * b3
@@ -1359,25 +1358,25 @@ object MathArrays {
     /** Build an array of elements.
      *
      *
-     * Arrays are filled with field.getZero()
+     * Arrays are filled with field.zero
      *
      * @param <T> the type of the field elements
      * @param field field to which array elements belong
      * @param length of the array
      * @return a new array
      * @since 3.2
-    </T> */
+     */
     fun <T> buildArray(field: Field<T>, length: Int): Array<T> {
         val array =
             java.lang.reflect.Array.newInstance(field.getRuntimeClass(), length) as Array<T>
-        array.fill(field.getZero())
+        array.fill(field.zero)
         return array
     }
 
     /** Build a double dimension  array of elements.
      *
      *
-     * Arrays are filled with field.getZero()
+     * Arrays are filled with field.zero
      *
      * @param <T> the type of the field elements
      * @param field field to which array elements belong
@@ -1399,7 +1398,7 @@ object MathArrays {
                 )
             )
             for (i in 0 until rows) {
-                array[i].fill(field.getZero())
+                array[i].fill(field.zero)
             }
         }
         return array

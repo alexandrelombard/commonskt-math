@@ -14,12 +14,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.commons.math3.util
+package com.github.alexandrelombard.commonskt.math3.utils
 
+import com.github.alexandrelombard.commonskt.math3.Field
 import com.github.alexandrelombard.commonskt.math3.FieldElement
 import com.github.alexandrelombard.commonskt.math3.utils.Decimal64
-import org.apache.commons.math3.Field
-import org.apache.commons.math3.FieldElement
+import kotlin.reflect.KClass
 
 /**
  * The field of double precision floating-point numbers.
@@ -29,18 +29,18 @@ import org.apache.commons.math3.FieldElement
  */
 class Decimal64Field
 /** Default constructor.  */
-private constructor() : Field<Decimal64?> {
+private constructor() : Field<Decimal64> {
     /** {@inheritDoc}  */
-    val zero: Decimal64?
+    override val zero: Decimal64
         get() = Decimal64.ZERO
 
     /** {@inheritDoc}  */
-    val one: Decimal64?
+    override val one: Decimal64
         get() = Decimal64.ONE
 
     /** {@inheritDoc}  */
-    val runtimeClass: java.lang.Class<out FieldElement<Decimal64>?>
-        get() = Decimal64::class.java
+    override val runtimeClass: KClass<out FieldElement<Decimal64>>
+        get() = Decimal64::class
 
     companion object {
         /**
