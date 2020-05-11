@@ -20,42 +20,59 @@ import com.github.alexandrelombard.commonskt.math3.exception.util.Localizable
 import com.github.alexandrelombard.commonskt.math3.exception.util.LocalizedFormats
 
 /**
- * Exception to be thrown when some counter maximum value is exceeded.
+ * Exception to be thrown when a number is too large.
  *
- * @since 3.0
+ * @since 2.2
  */
-open class MaxCountExceededException(
+class NumberIsTooLargeException
+/**
+ * Construct the exception with a specific context.
+ *
+ * @param specific Specific context pattern.
+ * @param wrong Value that is larger than the maximum.
+ * @param max Maximum.
+ * @param boundIsAllowed if true the maximum is included in the allowed range.
+ */(
     specific: Localizable,
-    max: Number,
-    vararg args: Any
-) : MathIllegalStateException() {
+    wrong: Number,
+    /**
+     * Higher bound.
+     */
+    val max: Number?,
+    /**
+     * Whether the maximum is included in the allowed range.
+     */
+    val boundIsAllowed: Boolean
+) :
+    MathIllegalNumberException(specific, wrong, max) {
+    /**
+     * @return the maximum.
+     */
 
     /**
-     * Maximum number of evaluations.
+     * @return `true` if the maximum is included in the allowed range.
      */
-    val max: Number
 
     /**
      * Construct the exception.
      *
+     * @param wrong Value that is larger than the maximum.
      * @param max Maximum.
+     * @param boundIsAllowed if true the maximum is included in the allowed range.
      */
-    constructor(max: Number) : this(LocalizedFormats.MAX_COUNT_EXCEEDED, max)
-
-    /**
-     * Construct the exception with a specific context.
-     *
-     * @param specific Specific context pattern.
-     * @param max Maximum.
-     * @param args Additional arguments.
-     */
-    init {
-        getContext().addMessage(specific, max, args)
-        this.max = max
+    constructor(
+        wrong: Number,
+        max: Number,
+        boundIsAllowed: Boolean
+    ) : this(
+        if (boundIsAllowed) LocalizedFormats.NUMBER_TOO_LARGE else LocalizedFormats.NUMBER_TOO_LARGE_BOUND_EXCLUDED,
+        wrong, max, boundIsAllowed
+    ) {
     }
 
     companion object {
         /** Serializable version Id.  */
         private const val serialVersionUID = 4330003017885151975L
     }
+
 }

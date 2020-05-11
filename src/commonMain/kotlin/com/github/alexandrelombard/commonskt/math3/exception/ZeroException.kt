@@ -20,42 +20,24 @@ import com.github.alexandrelombard.commonskt.math3.exception.util.Localizable
 import com.github.alexandrelombard.commonskt.math3.exception.util.LocalizedFormats
 
 /**
- * Exception to be thrown when some counter maximum value is exceeded.
+ * Exception to be thrown when zero is provided where it is not allowed.
  *
- * @since 3.0
+ * @since 2.2
  */
-open class MaxCountExceededException(
-    specific: Localizable,
-    max: Number,
-    vararg args: Any
-) : MathIllegalStateException() {
-
-    /**
-     * Maximum number of evaluations.
-     */
-    val max: Number
-
-    /**
-     * Construct the exception.
-     *
-     * @param max Maximum.
-     */
-    constructor(max: Number) : this(LocalizedFormats.MAX_COUNT_EXCEEDED, max)
+class ZeroException : MathIllegalNumberException {
 
     /**
      * Construct the exception with a specific context.
      *
      * @param specific Specific context pattern.
-     * @param max Maximum.
-     * @param args Additional arguments.
+     * @param arguments Arguments.
      */
-    init {
-        getContext().addMessage(specific, max, args)
-        this.max = max
-    }
+    constructor(specific: Localizable = LocalizedFormats.ZERO_NOT_ALLOWED,
+                vararg arguments: Any) :
+            super(specific, INTEGER_ZERO, arguments)
 
     companion object {
-        /** Serializable version Id.  */
-        private const val serialVersionUID = 4330003017885151975L
+        /** Serializable version identifier */
+        private const val serialVersionUID = -1960874856936000015L
     }
 }

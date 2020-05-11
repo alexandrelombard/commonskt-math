@@ -20,42 +20,26 @@ import com.github.alexandrelombard.commonskt.math3.exception.util.Localizable
 import com.github.alexandrelombard.commonskt.math3.exception.util.LocalizedFormats
 
 /**
- * Exception to be thrown when some counter maximum value is exceeded.
+ * All conditions checks that fail due to a {@code null} argument must throw
+ * this exception.
+ * This class is meant to signal a precondition violation ("null is an illegal
+ * argument") and so does not extend the standard {@code NullPointerException}.
+ * Propagation of {@code NullPointerException} from within Commons-Math is
+ * construed to be a bug.
  *
- * @since 3.0
+ * @since 2.2
  */
-open class MaxCountExceededException(
-    specific: Localizable,
-    max: Number,
-    vararg args: Any
-) : MathIllegalStateException() {
-
-    /**
-     * Maximum number of evaluations.
-     */
-    val max: Number
-
-    /**
-     * Construct the exception.
-     *
-     * @param max Maximum.
-     */
-    constructor(max: Number) : this(LocalizedFormats.MAX_COUNT_EXCEEDED, max)
-
-    /**
-     * Construct the exception with a specific context.
-     *
-     * @param specific Specific context pattern.
-     * @param max Maximum.
-     * @param args Additional arguments.
-     */
-    init {
-        getContext().addMessage(specific, max, args)
-        this.max = max
-    }
+@Deprecated("Kotlin null-safety nullifies the benefits of this exception")
+class NullArgumentException
+/**
+ * @param pattern Message pattern providing the specific context of
+ * the error.
+ * @param arguments Values for replacing the placeholders in {@code pattern}.
+ */(pattern: Localizable = LocalizedFormats.NULL_NOT_ALLOWED, vararg arguments: Any) :
+    MathIllegalArgumentException(pattern, arguments) {
 
     companion object {
-        /** Serializable version Id.  */
-        private const val serialVersionUID = 4330003017885151975L
+        /** Serializable version Id. */
+        private const val serialVersionUID = -6024911025449780478L
     }
 }
