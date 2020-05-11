@@ -1,6 +1,3 @@
-package com.github.alexandrelombard.commonskt.math3.utils
-
-
 /*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -17,7 +14,9 @@ package com.github.alexandrelombard.commonskt.math3.utils
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.github.alexandrelombard.commonskt.math3.utils
 
+import com.github.alexandrelombard.commonskt.math.BigDecimal
 import com.github.alexandrelombard.commonskt.math3.exception.MathArithmeticException
 import com.github.alexandrelombard.commonskt.math3.exception.MathIllegalArgumentException
 import com.github.alexandrelombard.commonskt.math3.exception.util.LocalizedFormats
@@ -28,11 +27,6 @@ import com.github.alexandrelombard.commonskt.math3.utils.FastMath.floor
 import com.github.alexandrelombard.commonskt.math3.utils.FastMath.max
 import com.github.alexandrelombard.commonskt.math3.utils.FastMath.nextAfter
 import com.github.alexandrelombard.commonskt.math3.utils.FastMath.pow
-import org.apache.commons.math3.exception.MathArithmeticException
-import org.apache.commons.math3.exception.MathIllegalArgumentException
-import org.apache.commons.math3.exception.util.LocalizedFormats
-import kotlin.jvm.JvmOverloads
-
 
 /**
  * Utilities for comparing numbers.
@@ -69,25 +63,26 @@ object Precision {
     private const val EXPONENT_OFFSET = 1023L
 
     /** Offset to order signed double numbers lexicographically.  */
-    private val SGN_MASK = (-0x8000000000000000L).toLong()
+    @ExperimentalUnsignedTypes
+    private val SGN_MASK = 0x8000000000000000UL.toLong()
 
     /** Offset to order signed double numbers lexicographically.  */
-    private const val SGN_MASK_FLOAT = -0x80000000
+    private const val SGN_MASK_FLOAT = 0x80000000
 
     /** Positive zero.  */
     private const val POSITIVE_ZERO = 0.0
 
     /** Positive zero bits.  */
-    private val POSITIVE_ZERO_DOUBLE_BITS: Long = java.lang.Double.doubleToRawLongBits(+0.0)
+    private val POSITIVE_ZERO_DOUBLE_BITS: Long = (+0.0).toRawBits()
 
     /** Negative zero bits.  */
-    private val NEGATIVE_ZERO_DOUBLE_BITS: Long = java.lang.Double.doubleToRawLongBits(-0.0)
+    private val NEGATIVE_ZERO_DOUBLE_BITS: Long = (-0.0).toRawBits()
 
     /** Positive zero bits.  */
-    private val POSITIVE_ZERO_FLOAT_BITS: Int = java.lang.Float.floatToRawIntBits(+0.0f)
+    private val POSITIVE_ZERO_FLOAT_BITS: Int = (+0.0f).toRawBits()
 
     /** Negative zero bits.  */
-    private val NEGATIVE_ZERO_FLOAT_BITS: Int = java.lang.Float.floatToRawIntBits(-0.0f)
+    private val NEGATIVE_ZERO_FLOAT_BITS: Int = (-0.0f).toRawBits()
 
     /**
      * Compares two numbers given some amount of allowed error.
@@ -114,8 +109,7 @@ object Precision {
      * Two float numbers are considered equal if there are `(maxUlps - 1)`
      * (or fewer) floating point numbers between them, i.e. two adjacent floating
      * point numbers are considered equal.
-     * Adapted from [
- * Bruce Dawson](http://randomascii.wordpress.com/2012/02/25/comparing-floating-point-numbers-2012-edition/). Returns `false` if either of the arguments is NaN.
+     * Adapted from [Bruce Dawson](http://randomascii.wordpress.com/2012/02/25/comparing-floating-point-numbers-2012-edition/). Returns `false` if either of the arguments is NaN.
      *
      * @param x first value
      * @param y second value
@@ -145,7 +139,7 @@ object Precision {
      * @since 2.2
      */
     fun equalsIncludingNaN(x: Float, y: Float): Boolean {
-        return if (x != x || y != y) x != x xor y == y else equals(x, y, 1)
+        return if (x != x || y != y) (x != x) xor (y == y) else equals(x, y, 1)
     }
 
     /**
@@ -194,20 +188,11 @@ object Precision {
      * point values between `x` and `y`.
      * @since 2.2
      */
-    /**
-     * Returns true iff they are equal as defined by
-     * [equals(x, y, 1)][.equals].
-     *
-     * @param x first value
-     * @param y second value
-     * @return `true` if the values are equal.
-     */
-    @JvmOverloads
     fun equals(x: Float, y: Float, maxUlps: Int = 1): Boolean {
-        val xInt: Int = java.lang.Float.floatToRawIntBits(x)
-        val yInt: Int = java.lang.Float.floatToRawIntBits(y)
+        val xInt: Int = x.toRawBits()
+        val yInt: Int = y.toRawBits()
         val isEqual: Boolean
-        if (xInt xor yInt and SGN_MASK_FLOAT == 0) {
+        if (((xInt xor yInt) and SGN_MASK_FLOAT.toInt()) == 0) {
             // number have same sign, there is no risk of overflow
             isEqual = abs(xInt - yInt) <= maxUlps
         } else {
@@ -227,7 +212,7 @@ object Precision {
                 deltaMinus <= maxUlps - deltaPlus
             }
         }
-        return isEqual && !java.lang.Float.isNaN(x) && !java.lang.Float.isNaN(y)
+        return isEqual && !x.isNaN() && !y.isNaN()
     }
 
     /**
@@ -243,7 +228,7 @@ object Precision {
      * @since 2.2
      */
     fun equalsIncludingNaN(x: Float, y: Float, maxUlps: Int): Boolean {
-        return if (x != x || y != y) x != x xor y == y else equals(x, y, maxUlps)
+        return if (x != x || y != y) (x != x) xor (y == y) else equals(x, y, maxUlps)
     }
 
     /**
@@ -256,7 +241,7 @@ object Precision {
      * @since 2.2
      */
     fun equalsIncludingNaN(x: Double, y: Double): Boolean {
-        return if (x != x || y != y) x != x xor y == y else equals(x, y, 1)
+        return if (x != x || y != y) (x != x) xor (y == y) else equals(x, y, 1)
     }
 
     /**
@@ -323,7 +308,7 @@ object Precision {
      *
      *
      * Adapted from [
- * Bruce Dawson](http://randomascii.wordpress.com/2012/02/25/comparing-floating-point-numbers-2012-edition/). Returns `false` if either of the arguments is NaN.
+     * Bruce Dawson](http://randomascii.wordpress.com/2012/02/25/comparing-floating-point-numbers-2012-edition/). Returns `false` if either of the arguments is NaN.
      *
      *
      * @param x first value
@@ -333,20 +318,12 @@ object Precision {
      * @return `true` if there are fewer than `maxUlps` floating
      * point values between `x` and `y`.
      */
-    /**
-     * Returns true iff they are equal as defined by
-     * [equals(x, y, 1)][.equals].
-     *
-     * @param x first value
-     * @param y second value
-     * @return `true` if the values are equal.
-     */
-    @JvmOverloads
+    @ExperimentalUnsignedTypes
     fun equals(x: Double, y: Double, maxUlps: Int = 1): Boolean {
-        val xInt: Long = java.lang.Double.doubleToRawLongBits(x)
-        val yInt: Long = java.lang.Double.doubleToRawLongBits(y)
+        val xInt: Long = x.toRawBits()
+        val yInt: Long = y.toRawBits()
         val isEqual: Boolean
-        if (xInt xor yInt and SGN_MASK == 0L) {
+        if (((xInt xor yInt) and SGN_MASK) == 0L) {
             // number have same sign, there is no risk of overflow
             isEqual = abs(xInt - yInt) <= maxUlps
         } else {
@@ -366,7 +343,7 @@ object Precision {
                 deltaMinus <= maxUlps - deltaPlus
             }
         }
-        return isEqual && !java.lang.Double.isNaN(x) && !java.lang.Double.isNaN(y)
+        return isEqual && !x.isNaN() && !y.isNaN()
     }
 
     /**
@@ -382,7 +359,7 @@ object Precision {
      * @since 2.2
      */
     fun equalsIncludingNaN(x: Double, y: Double, maxUlps: Int): Boolean {
-        return if (x != x || y != y) x != x xor y == y else equals(x, y, maxUlps)
+        return if (x != x || y != y) (x != x) xor (y == y) else equals(x, y, maxUlps)
     }
     /**
      * Rounds the given value to the specified number of decimal places.
@@ -410,16 +387,16 @@ object Precision {
      * @return the rounded value.
      * @since 1.1 (previously in `MathUtils`, moved as of version 3.0)
      */
-    @JvmOverloads
-    fun round(x: Double, scale: Int, roundingMethod: Int = java.math.BigDecimal.ROUND_HALF_UP): Double {
+    @ExperimentalStdlibApi
+    fun round(x: Double, scale: Int, roundingMethod: Int = BigDecimal.ROUND_HALF_UP): Double {
         return try {
-            val rounded: Double = java.math.BigDecimal(java.lang.Double.toString(x))
+            val rounded: Double = BigDecimal(x.toString())
                 .setScale(scale, roundingMethod)
-                .doubleValue()
+                .toDouble()
             // MATH-1089: negative values rounded to zero should result in negative zero
             if (rounded == POSITIVE_ZERO) POSITIVE_ZERO * x else rounded
         } catch (ex: NumberFormatException) {
-            if (java.lang.Double.isInfinite(x)) {
+            if (x.isInfinite()) {
                 x
             } else {
                 Double.NaN
@@ -439,18 +416,7 @@ object Precision {
      * @throws MathArithmeticException if an exact operation is required but result is not exact
      * @throws MathIllegalArgumentException if `roundingMethod` is not a valid rounding method.
      */
-    /**
-     * Rounds the given value to the specified number of decimal places.
-     * The value is rounded using the [BigDecimal.ROUND_HALF_UP] method.
-     *
-     * @param x Value to round.
-     * @param scale Number of digits to the right of the decimal point.
-     * @return the rounded value.
-     * @since 1.1 (previously in `MathUtils`, moved as of version 3.0)
-     */
-    @JvmOverloads
-    @Throws(MathArithmeticException::class, MathIllegalArgumentException::class)
-    fun round(x: Float, scale: Int, roundingMethod: Int = java.math.BigDecimal.ROUND_HALF_UP): Float {
+    fun round(x: Float, scale: Int, roundingMethod: Int = BigDecimal.ROUND_HALF_UP): Float {
         val sign = copySign(1f, x)
         val factor = pow(10.0, scale).toFloat() * sign
         return roundUnscaled(x * factor.toDouble(), sign.toDouble(), roundingMethod).toFloat() / factor
@@ -469,7 +435,6 @@ object Precision {
      * @throws MathIllegalArgumentException if `roundingMethod` is not a valid rounding method.
      * @since 1.1 (previously in `MathUtils`, moved as of version 3.0)
      */
-    @Throws(MathArithmeticException::class, MathIllegalArgumentException::class)
     private fun roundUnscaled(
         unscaled: Double,
         sign: Double,
@@ -477,19 +442,19 @@ object Precision {
     ): Double {
         var unscaled = unscaled
         when (roundingMethod) {
-            java.math.BigDecimal.ROUND_CEILING -> unscaled = if (sign == -1.0) {
+            BigDecimal.ROUND_CEILING -> unscaled = if (sign == -1.0) {
                 floor(nextAfter(unscaled, Double.NEGATIVE_INFINITY))
             } else {
                 ceil(nextAfter(unscaled, Double.POSITIVE_INFINITY))
             }
-            java.math.BigDecimal.ROUND_DOWN -> unscaled =
+            BigDecimal.ROUND_DOWN -> unscaled =
                 floor(nextAfter(unscaled, Double.NEGATIVE_INFINITY))
-            java.math.BigDecimal.ROUND_FLOOR -> unscaled = if (sign == -1.0) {
+            BigDecimal.ROUND_FLOOR -> unscaled = if (sign == -1.0) {
                 ceil(nextAfter(unscaled, Double.POSITIVE_INFINITY))
             } else {
                 floor(nextAfter(unscaled, Double.NEGATIVE_INFINITY))
             }
-            java.math.BigDecimal.ROUND_HALF_DOWN -> {
+            BigDecimal.ROUND_HALF_DOWN -> {
                 unscaled = nextAfter(unscaled, Double.NEGATIVE_INFINITY)
                 val fraction = unscaled - floor(unscaled)
                 unscaled = if (fraction > 0.5) {
@@ -498,7 +463,7 @@ object Precision {
                     floor(unscaled)
                 }
             }
-            java.math.BigDecimal.ROUND_HALF_EVEN -> {
+            BigDecimal.ROUND_HALF_EVEN -> {
                 val fraction = unscaled - floor(unscaled)
                 unscaled = if (fraction > 0.5) {
                     ceil(unscaled)
@@ -513,7 +478,7 @@ object Precision {
                     }
                 }
             }
-            java.math.BigDecimal.ROUND_HALF_UP -> {
+            BigDecimal.ROUND_HALF_UP -> {
                 unscaled = nextAfter(unscaled, Double.POSITIVE_INFINITY)
                 val fraction = unscaled - floor(unscaled)
                 unscaled = if (fraction >= 0.5) {
@@ -522,24 +487,24 @@ object Precision {
                     floor(unscaled)
                 }
             }
-            java.math.BigDecimal.ROUND_UNNECESSARY -> if (unscaled != floor(unscaled)) {
+            BigDecimal.ROUND_UNNECESSARY -> if (unscaled != floor(unscaled)) {
                 throw MathArithmeticException()
             }
-            java.math.BigDecimal.ROUND_UP ->             // do not round if the discarded fraction is equal to zero
+            BigDecimal.ROUND_UP ->             // do not round if the discarded fraction is equal to zero
                 if (unscaled != floor(unscaled)) {
                     unscaled = ceil(nextAfter(unscaled, Double.POSITIVE_INFINITY))
                 }
             else -> throw MathIllegalArgumentException(
                 LocalizedFormats.INVALID_ROUNDING_METHOD,
                 roundingMethod,
-                "ROUND_CEILING", java.math.BigDecimal.ROUND_CEILING,
-                "ROUND_DOWN", java.math.BigDecimal.ROUND_DOWN,
-                "ROUND_FLOOR", java.math.BigDecimal.ROUND_FLOOR,
-                "ROUND_HALF_DOWN", java.math.BigDecimal.ROUND_HALF_DOWN,
-                "ROUND_HALF_EVEN", java.math.BigDecimal.ROUND_HALF_EVEN,
-                "ROUND_HALF_UP", java.math.BigDecimal.ROUND_HALF_UP,
-                "ROUND_UNNECESSARY", java.math.BigDecimal.ROUND_UNNECESSARY,
-                "ROUND_UP", java.math.BigDecimal.ROUND_UP
+                "ROUND_CEILING", BigDecimal.ROUND_CEILING,
+                "ROUND_DOWN", BigDecimal.ROUND_DOWN,
+                "ROUND_FLOOR", BigDecimal.ROUND_FLOOR,
+                "ROUND_HALF_DOWN", BigDecimal.ROUND_HALF_DOWN,
+                "ROUND_HALF_EVEN", BigDecimal.ROUND_HALF_EVEN,
+                "ROUND_HALF_UP", BigDecimal.ROUND_HALF_UP,
+                "ROUND_UNNECESSARY", BigDecimal.ROUND_UNNECESSARY,
+                "ROUND_UP", BigDecimal.ROUND_UP
             )
         }
         return unscaled
@@ -572,12 +537,12 @@ object Precision {
          *  However, OpenJDK (Sparc Solaris) cannot handle such small
          *  constants: MATH-721
          */
-        EPSILON = java.lang.Double.longBitsToDouble(EXPONENT_OFFSET - 53L shl 52)
+        EPSILON = Double.fromBits(EXPONENT_OFFSET - 53L shl 52)
 
         /*
          * This was previously expressed as = 0x1.0p-1022;
          * However, OpenJDK (Sparc Solaris) cannot handle such small
          * constants: MATH-721
-         */SAFE_MIN = java.lang.Double.longBitsToDouble(EXPONENT_OFFSET - 1022L shl 52)
+         */SAFE_MIN = Double.fromBits(EXPONENT_OFFSET - 1022L shl 52)
     }
 }
