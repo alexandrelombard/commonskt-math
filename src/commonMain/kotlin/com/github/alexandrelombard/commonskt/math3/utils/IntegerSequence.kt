@@ -1,6 +1,3 @@
-package com.github.alexandrelombard.commonskt.math3.utils
-
-
 /*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -17,15 +14,10 @@ package com.github.alexandrelombard.commonskt.math3.utils
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.github.alexandrelombard.commonskt.math3.utils
+
 import com.github.alexandrelombard.commonskt.math3.exception.*
 import com.github.alexandrelombard.commonskt.math3.utils.IntegerSequence.Incrementor.MaxCountExceededCallback
-import org.apache.commons.math3.exception.MathUnsupportedOperationException
-import org.apache.commons.math3.exception.MaxCountExceededException
-import org.apache.commons.math3.exception.NotStrictlyPositiveException
-import org.apache.commons.math3.exception.NullArgumentException
-import org.apache.commons.math3.exception.ZeroException
-import kotlin.jvm.JvmOverloads
-
 
 /**
  * Provides a sequence of integers.
@@ -77,7 +69,7 @@ object IntegerSequence {
         private val max: Int,
         /** Increment.  */
         private val step: Int
-    ) : Iterable<Int?> {
+    ) : Iterable<Int> {
         /** Number of integers contained in this range.  */
         private val size: Int
 
@@ -126,8 +118,8 @@ object IntegerSequence {
         start: Int,
         max: Int,
         step: Int,
-        cb: MaxCountExceededCallback?
-    ) : MutableIterator<Int?> {
+        cb: MaxCountExceededCallback
+    ) : MutableIterator<Int> {
         /** Initial value the counter.  */
         private val init: Int
 
@@ -165,7 +157,6 @@ object IntegerSequence {
              * @param maximalCount Maximal count.
              * @throws MaxCountExceededException at counter exhaustion
              */
-            @Throws(MaxCountExceededException::class)
             fun trigger(maximalCount: Int)
         }
 
@@ -227,7 +218,7 @@ object IntegerSequence {
          * @param cb Callback to be called at counter exhaustion.
          * @return a new instance.
          */
-        fun withCallback(cb: MaxCountExceededCallback?): Incrementor {
+        fun withCallback(cb: MaxCountExceededCallback): Incrementor {
             return Incrementor(
                 init,
                 maximalCount,
@@ -250,20 +241,11 @@ object IntegerSequence {
          * will trigger a `MaxCountExceededException`,
          * `true` otherwise.
          */
-        @JvmOverloads
         fun canIncrement(nTimes: Int = 1): Boolean {
             val finalCount = count + nTimes * increment
             return if (increment < 0) finalCount > maximalCount else finalCount < maximalCount
         }
-        /**
-         * Performs multiple increments.
-         *
-         * @param nTimes Number of increments.
-         * @throws MaxCountExceededException at counter exhaustion.
-         * @throws NotStrictlyPositiveException if `nTimes <= 0`.
-         *
-         * @see .increment
-         */
+
         /**
          * Adds the increment value to the current iteration count.
          * At counter exhaustion, this method will call the
@@ -272,14 +254,14 @@ object IntegerSequence {
          * [.withCallback] method.
          * If not explicitly set, a default callback is used that will throw
          * a `MaxCountExceededException`.
+         * @param nTimes Number of increments.
          *
          * @throws MaxCountExceededException at counter exhaustion, unless a
          * custom [callback][MaxCountExceededCallback] has been set.
+         * @throws NotStrictlyPositiveException if `nTimes <= 0`.
          *
          * @see .increment
          */
-        @JvmOverloads
-        @Throws(MaxCountExceededException::class)
         fun increment(nTimes: Int = 1) {
             if (nTimes <= 0) {
                 throw NotStrictlyPositiveException(nTimes)
@@ -315,9 +297,8 @@ object IntegerSequence {
             /** Default callback.  */
             private val CALLBACK: MaxCountExceededCallback = object : MaxCountExceededCallback {
                 /** {@inheritDoc}  */
-                @Throws(MaxCountExceededException::class)
-                override fun trigger(max: Int) {
-                    throw MaxCountExceededException(max)
+                override fun trigger(maximalCount: Int) {
+                    throw MaxCountExceededException(maximalCount)
                 }
             }
 
@@ -346,9 +327,6 @@ object IntegerSequence {
          * @throws NullArgumentException if `cb` is `null`.
          */
         init {
-            if (cb == null) {
-                throw NullArgumentException()
-            }
             init = start
             maximalCount = max
             increment = step
