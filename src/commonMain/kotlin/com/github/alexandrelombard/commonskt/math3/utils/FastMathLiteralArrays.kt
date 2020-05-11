@@ -1,5 +1,3 @@
-package com.github.alexandrelombard.commonskt.math3.utils
-
 /*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -16,8 +14,7 @@ package com.github.alexandrelombard.commonskt.math3.utils
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-package org.apache.commons.math3.util
+package com.github.alexandrelombard.commonskt.math3.utils
 
 /**
  * Utility class for loading tabulated data used by [FastMath].
@@ -6133,7 +6130,7 @@ internal object FastMathLiteralArrays {
      * @return a clone of the data array.
      */
     fun loadExpIntA(): DoubleArray {
-        return EXP_INT_A.clone()
+        return EXP_INT_A.copyOf()
     }
 
     /**
@@ -6142,7 +6139,7 @@ internal object FastMathLiteralArrays {
      * @return a clone of the data array.
      */
     fun loadExpIntB(): DoubleArray {
-        return EXP_INT_B.clone()
+        return EXP_INT_B.copyOf()
     }
 
     /**
@@ -6151,7 +6148,7 @@ internal object FastMathLiteralArrays {
      * @return a clone of the data array.
      */
     fun loadExpFracA(): DoubleArray {
-        return EXP_FRAC_A.clone()
+        return EXP_FRAC_A.copyOf()
     }
 
     /**
@@ -6160,7 +6157,7 @@ internal object FastMathLiteralArrays {
      * @return a clone of the data array.
      */
     fun loadExpFracB(): DoubleArray {
-        return EXP_FRAC_B.clone()
+        return EXP_FRAC_B.copyOf()
     }
 
     /**
@@ -6169,6 +6166,6 @@ internal object FastMathLiteralArrays {
      * @return a clone of the data array.
      */
     fun loadLnMant(): Array<DoubleArray> {
-        return LN_MANT.clone()
+        return LN_MANT.copyOf()
     }
 }

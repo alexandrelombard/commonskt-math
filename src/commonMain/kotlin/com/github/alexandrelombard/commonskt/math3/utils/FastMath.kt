@@ -1,6 +1,3 @@
-package com.github.alexandrelombard.commonskt.math3.utils
-
-
 /*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -17,12 +14,11 @@ package com.github.alexandrelombard.commonskt.math3.utils
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.github.alexandrelombard.commonskt.math3.utils
+
 import com.github.alexandrelombard.commonskt.math3.exception.MathArithmeticException
 import com.github.alexandrelombard.commonskt.math3.exception.util.LocalizedFormats
-import org.apache.commons.math3.exception.MathArithmeticException
-import org.apache.commons.math3.exception.util.LocalizedFormats
-import kotlin.jvm.JvmStatic
-
+import kotlin.random.Random
 
 /**
  * Faster, more accurate, portable alternative to [Math] and
@@ -106,7 +102,7 @@ object FastMath {
     const val EXP_FRAC_TABLE_LEN = 1025 // 0, 1/1024, ... 1024/1024
 
     /** StrictMath.log(Double.MAX_VALUE): {@value}  */
-    private val LOG_MAX_VALUE: Double = java.lang.StrictMath.log(Double.MAX_VALUE)
+    private val LOG_MAX_VALUE: Double = StrictMath.log(Double.MAX_VALUE)
 
     /** Indicator for tables initialization.
      *
@@ -396,9 +392,9 @@ object FastMath {
         if (d > -Precision.SAFE_MIN && d < Precision.SAFE_MIN) {
             return d // These are un-normalised - don't try to convert
         }
-        var xl: Long = java.lang.Double.doubleToRawLongBits(d) // can take raw bits because just gonna convert it back
+        var xl: Long = d.toRawBits() // can take raw bits because just gonna convert it back
         xl = xl and MASK_30BITS // Drop low order bits
-        return java.lang.Double.longBitsToDouble(xl)
+        return Double.fromBits(xl)
     }
 
     /** Compute the square root of a number.
@@ -408,7 +404,7 @@ object FastMath {
      * @return square root of a
      */
     fun sqrt(a: Double): Double {
-        return java.lang.Math.sqrt(a)
+        return sqrt(a)
     }
 
     /** Compute the hyperbolic cosine of a number.
@@ -818,7 +814,7 @@ object FastMath {
      * @return a random number between 0.0 and 1.0
      */
     fun random(): Double {
-        return java.lang.Math.random()
+        return Random.nextDouble()
     }
 
     /**
@@ -1119,9 +1115,10 @@ object FastMath {
         if (x == 0.0) { // Handle special case of +0/-0
             return Double.NEGATIVE_INFINITY
         }
-        var bits: Long = java.lang.Double.doubleToRawLongBits(x)
+        var bits: Long = x.toRawBits()
 
-        /* Handle special cases of negative input, and NaN */if ((bits and (-0x8000000000000000L).toLong() != 0L || x != x) && x != 0.0) {
+        /* Handle special cases of negative input, and NaN */
+        if ((bits and (-0x8000000000000000L).toLong() != 0L || x != x) && x != 0.0) {
             if (hiPrec != null) {
                 hiPrec[0] = Double.NaN
             }
@@ -1329,7 +1326,7 @@ object FastMath {
             val xpb = -(xpa - 1 - x)
             val hiPrec = DoubleArray(2)
             val lores = log(xpa, hiPrec)
-            if (java.lang.Double.isInfinite(lores)) { // Don't allow this to be converted to NaN
+            if (lores.isInfinite()) { // Don't allow this to be converted to NaN
                 return lores
             }
 
@@ -1352,7 +1349,7 @@ object FastMath {
     fun log10(x: Double): Double {
         val hiPrec = DoubleArray(2)
         val lores = log(x, hiPrec)
-        if (java.lang.Double.isInfinite(lores)) { // don't allow this to be converted to NaN
+        if (lores.isInfinite()) { // don't allow this to be converted to NaN
             return lores
         }
         val tmp = hiPrec[0] * HEX_40000000
@@ -1395,10 +1392,10 @@ object FastMath {
             // y = -0 or y = +0
             1.0
         } else {
-            val yBits: Long = java.lang.Double.doubleToRawLongBits(y)
+            val yBits: Long = y.toRawBits()
             val yRawExp = (yBits and MASK_DOUBLE_EXPONENT shr 52).toInt()
             val yRawMantissa = yBits and MASK_DOUBLE_MANTISSA
-            val xBits: Long = java.lang.Double.doubleToRawLongBits(x)
+            val xBits: Long = x.toRawBits()
             val xRawExp = (xBits and MASK_DOUBLE_EXPONENT shr 52).toInt()
             val xRawMantissa = xBits and MASK_DOUBLE_MANTISSA
             if (yRawExp > 1085) {
@@ -1482,7 +1479,7 @@ object FastMath {
                     /* Compute ln(x) */
                     val lns = DoubleArray(2)
                     val lores = log(x, lns)
-                    if (java.lang.Double.isInfinite(lores)) { // don't allow this to be converted to NaN
+                    if (lores.isInfinite()) { // don't allow this to be converted to NaN
                         return lores
                     }
                     var lna = lns[0]
@@ -1857,7 +1854,7 @@ object FastMath {
      */
     private fun reducePayneHanek(x: Double, result: DoubleArray) {
         /* Convert input double to bits */
-        var inbits: Long = java.lang.Double.doubleToRawLongBits(x)
+        var inbits: Long = x.toRawBits()
         var exponent = (inbits shr 52 and 0x7ff).toInt() - 1023
 
         /* Convert to fixed point representation */inbits = inbits and 0x000fffffffffffffL
@@ -2053,7 +2050,7 @@ object FastMath {
         }
 
         /* Check for zero and negative zero */if (xa == 0.0) {
-            val bits: Long = java.lang.Double.doubleToRawLongBits(x)
+            val bits: Long = x.toRawBits()
             return if (bits < 0) {
                 -0.0
             } else 0.0
@@ -2151,7 +2148,7 @@ object FastMath {
         }
 
         /* Check for zero and negative zero */if (xa == 0.0) {
-            val bits: Long = java.lang.Double.doubleToRawLongBits(x)
+            val bits: Long = x.toRawBits()
             return if (bits < 0) {
                 -0.0
             } else 0.0
@@ -2579,7 +2576,7 @@ object FastMath {
     fun cbrt(x: Double): Double {
         /* Convert input double to bits */
         var x = x
-        var inbits: Long = java.lang.Double.doubleToRawLongBits(x)
+        var inbits: Long = x.toRawBits()
         var exponent = (inbits shr 52 and 0x7ff).toInt() - 1023
         var subnormal = false
         if (exponent == -1023) {
@@ -2589,7 +2586,7 @@ object FastMath {
 
             /* Subnormal, so normalize */subnormal = true
             x *= 1.8014398509481984E16 // 2^54
-            inbits = java.lang.Double.doubleToRawLongBits(x)
+            inbits = x.toRawBits()
             exponent = (inbits shr 52 and 0x7ff).toInt() - 1023
         }
         if (exponent == 1024) {
@@ -2601,14 +2598,14 @@ object FastMath {
         val exp3 = exponent / 3
 
         /* p2 will be the nearest power of 2 to x with its exponent divided by 3 */
-        val p2: Double = java.lang.Double.longBitsToDouble(
+        val p2: Double = Double.fromBits(
             inbits and (-0x8000000000000000L).toLong() or
                     (exp3 + 1023 and 0x7ff).toLong() shl 52
         )
 
         /* This will be a number between 1 and 2 */
         val mant: Double =
-            java.lang.Double.longBitsToDouble(inbits and 0x000fffffffffffffL or 0x3ff0000000000000L)
+            Double.fromBits(inbits and 0x000fffffffffffffL or 0x3ff0000000000000L)
 
         /* Estimate the cube root of mant by polynomial */
         var est = -0.010714690733195933
@@ -2655,7 +2652,7 @@ object FastMath {
      * @return x converted into radians
      */
     fun toRadians(x: Double): Double {
-        if (java.lang.Double.isInfinite(x) || x == 0.0) { // Matches +/- 0.0; return correct sign
+        if (x.isInfinite() || x == 0.0) { // Matches +/- 0.0; return correct sign
             return x
         }
 
@@ -2677,7 +2674,7 @@ object FastMath {
      * @return x converted into degrees
      */
     fun toDegrees(x: Double): Double {
-        if (java.lang.Double.isInfinite(x) || x == 0.0) { // Matches +/- 0.0; return correct sign
+        if (x.isInfinite() || x == 0.0) { // Matches +/- 0.0; return correct sign
             return x
         }
 
@@ -2719,7 +2716,7 @@ object FastMath {
      * @return abs(x)
      */
     fun abs(x: Float): Float {
-        return java.lang.Float.intBitsToFloat(MASK_NON_SIGN_INT and java.lang.Float.floatToRawIntBits(x))
+        return Float.fromBits(MASK_NON_SIGN_INT and x.toRawBits())
     }
 
     /**
@@ -2728,7 +2725,7 @@ object FastMath {
      * @return abs(x)
      */
     fun abs(x: Double): Double {
-        return java.lang.Double.longBitsToDouble(MASK_NON_SIGN_LONG and java.lang.Double.doubleToRawLongBits(x))
+        return Double.fromBits(MASK_NON_SIGN_LONG and x.toRawBits())
     }
 
     /**
@@ -2737,9 +2734,9 @@ object FastMath {
      * @return ulp(x)
      */
     fun ulp(x: Double): Double {
-        return if (java.lang.Double.isInfinite(x)) {
+        return if (x.isInfinite()) {
             Double.POSITIVE_INFINITY
-        } else abs(x - java.lang.Double.longBitsToDouble(java.lang.Double.doubleToRawLongBits(x) xor 1))
+        } else abs(x - Double.fromBits(x.toRawBits() xor 1))
     }
 
     /**
@@ -2748,9 +2745,9 @@ object FastMath {
      * @return ulp(x)
      */
     fun ulp(x: Float): Float {
-        return if (java.lang.Float.isInfinite(x)) {
+        return if (x.isInfinite()) {
             Float.POSITIVE_INFINITY
-        } else abs(x - java.lang.Float.intBitsToFloat(java.lang.Float.floatToIntBits(x) xor 1))
+        } else abs(x - Float.fromBits(x.toBits() xor 1))
     }
 
     /**
@@ -2763,7 +2760,7 @@ object FastMath {
 
         // first simple and fast handling when 2^n can be represented using normal numbers
         if (n > -1023 && n < 1024) {
-            return d * java.lang.Double.longBitsToDouble((n + 1023).toLong() shl 52)
+            return d * Double.fromBits((n + 1023).toLong() shl 52)
         }
 
         // handle special cases
@@ -2778,7 +2775,7 @@ object FastMath {
         }
 
         // decompose d
-        val bits: Long = java.lang.Double.doubleToRawLongBits(d)
+        val bits: Long = d.toRawBits()
         val sign = bits and (-0x8000000000000000L).toLong()
         val exponent = (bits ushr 52).toInt() and 0x7ff
         var mantissa = bits and 0x000fffffffffffffL
@@ -2789,7 +2786,7 @@ object FastMath {
             // we are really in the case n <= -1023
             if (scaledExponent > 0) {
                 // both the input and the result are normal numbers, we only adjust the exponent
-                java.lang.Double.longBitsToDouble(sign or (scaledExponent.toLong() shl 52) or mantissa)
+                Double.fromBits(sign or (scaledExponent.toLong() shl 52) or mantissa)
             } else if (scaledExponent > -53) {
                 // the input is a normal number and the result is a subnormal number
 
@@ -2803,7 +2800,7 @@ object FastMath {
                     // we need to add 1 bit to round up the result
                     mantissa++
                 }
-                java.lang.Double.longBitsToDouble(sign or mantissa)
+                Double.fromBits(sign or mantissa)
             } else {
                 // no need to compute the mantissa, the number scales down to 0
                 if (sign == 0L) 0.0 else -0.0
@@ -2820,12 +2817,12 @@ object FastMath {
                 ++scaledExponent
                 mantissa = mantissa and 0x000fffffffffffffL
                 if (scaledExponent < 2047) {
-                    java.lang.Double.longBitsToDouble(sign or (scaledExponent.toLong() shl 52) or mantissa)
+                    Double.fromBits(sign or (scaledExponent.toLong() shl 52) or mantissa)
                 } else {
                     if (sign == 0L) Double.POSITIVE_INFINITY else Double.NEGATIVE_INFINITY
                 }
             } else if (scaledExponent < 2047) {
-                java.lang.Double.longBitsToDouble(sign or (scaledExponent.toLong() shl 52) or mantissa)
+                Double.fromBits(sign or (scaledExponent.toLong() shl 52) or mantissa)
             } else {
                 if (sign == 0L) Double.POSITIVE_INFINITY else Double.NEGATIVE_INFINITY
             }
@@ -2842,7 +2839,7 @@ object FastMath {
 
         // first simple and fast handling when 2^n can be represented using normal numbers
         if (n > -127 && n < 128) {
-            return f * java.lang.Float.intBitsToFloat(n + 127 shl 23)
+            return f * Float.fromBits(n + 127 shl 23)
         }
 
         // handle special cases
@@ -2868,7 +2865,7 @@ object FastMath {
             // we are really in the case n <= -127
             if (scaledExponent > 0) {
                 // both the input and the result are normal numbers, we only adjust the exponent
-                java.lang.Float.intBitsToFloat(sign or (scaledExponent shl 23) or mantissa)
+                Float.fromBits(sign or (scaledExponent shl 23) or mantissa)
             } else if (scaledExponent > -24) {
                 // the input is a normal number and the result is a subnormal number
 
@@ -2882,7 +2879,7 @@ object FastMath {
                     // we need to add 1 bit to round up the result
                     mantissa++
                 }
-                java.lang.Float.intBitsToFloat(sign or mantissa)
+                Float.fromBits(sign or mantissa)
             } else {
                 // no need to compute the mantissa, the number scales down to 0
                 if (sign == 0) 0.0f else -0.0f
@@ -2899,12 +2896,12 @@ object FastMath {
                 ++scaledExponent
                 mantissa = mantissa and 0x007fffff
                 if (scaledExponent < 255) {
-                    java.lang.Float.intBitsToFloat(sign or (scaledExponent shl 23) or mantissa)
+                    Float.fromBits(sign or (scaledExponent shl 23) or mantissa)
                 } else {
                     if (sign == 0) Float.POSITIVE_INFINITY else Float.NEGATIVE_INFINITY
                 }
             } else if (scaledExponent < 255) {
-                java.lang.Float.intBitsToFloat(sign or (scaledExponent shl 23) or mantissa)
+                Float.fromBits(sign or (scaledExponent shl 23) or mantissa)
             } else {
                 if (sign == 0) Float.POSITIVE_INFINITY else Float.NEGATIVE_INFINITY
             }
@@ -2961,12 +2958,12 @@ object FastMath {
         // special cases MAX_VALUE to infinity and  MIN_VALUE to 0
         // are handled just as normal numbers
         // can use raw bits since already dealt with infinity and NaN
-        val bits: Long = java.lang.Double.doubleToRawLongBits(d)
+        val bits: Long = d.toRawBits()
         val sign = bits and (-0x8000000000000000L).toLong()
         return if ((direction < d) xor (sign == 0L)) {
-            java.lang.Double.longBitsToDouble(sign or (bits and 0x7fffffffffffffffL) + 1)
+            Double.fromBits(sign or (bits and 0x7fffffffffffffffL) + 1)
         } else {
-            java.lang.Double.longBitsToDouble(sign or (bits and 0x7fffffffffffffffL) - 1)
+            Double.fromBits(sign or (bits and 0x7fffffffffffffffL) - 1)
         }
     }
 
@@ -3019,12 +3016,12 @@ object FastMath {
         }
         // special cases MAX_VALUE to infinity and  MIN_VALUE to 0
         // are handled just as normal numbers
-        val bits: Int = java.lang.Float.floatToIntBits(f)
+        val bits: Int = f.toBits()
         val sign = bits and -0x80000000
         return if ((direction < f) xor (sign == 0)) {
-            java.lang.Float.intBitsToFloat(sign or (bits and 0x7fffffff) + 1)
+            Float.fromBits(sign or (bits and 0x7fffffff) + 1)
         } else {
-            java.lang.Float.intBitsToFloat(sign or (bits and 0x7fffffff) - 1)
+            Float.fromBits(sign or (bits and 0x7fffffff) - 1)
         }
     }
 
@@ -3140,7 +3137,7 @@ object FastMath {
         }
         /* min(+0.0,-0.0) == -0.0 */
         /* 0x80000000 == Float.floatToRawIntBits(-0.0d) */
-        val bits: Int = java.lang.Float.floatToRawIntBits(a)
+        val bits: Int = a.toRawBits()
         return if (bits == -0x80000000) {
             a
         } else b
@@ -3163,7 +3160,7 @@ object FastMath {
         }
         /* min(+0.0,-0.0) == -0.0 */
         /* 0x8000000000000000L == Double.doubleToRawLongBits(-0.0d) */
-        val bits: Long = java.lang.Double.doubleToRawLongBits(a)
+        val bits: Long = a.toRawBits()
         return if (bits == -0x8000000000000000L) {
             a
         } else b
@@ -3204,7 +3201,7 @@ object FastMath {
         }
         /* min(+0.0,-0.0) == -0.0 */
         /* 0x80000000 == Float.floatToRawIntBits(-0.0d) */
-        val bits: Int = java.lang.Float.floatToRawIntBits(a)
+        val bits: Int = a.toRawBits()
         return if (bits == -0x80000000) {
             b
         } else a
@@ -3227,7 +3224,7 @@ object FastMath {
         }
         /* min(+0.0,-0.0) == -0.0 */
         /* 0x8000000000000000L == Double.doubleToRawLongBits(-0.0d) */
-        val bits: Long = java.lang.Double.doubleToRawLongBits(a)
+        val bits: Long = a.toRawBits()
         return if (bits == -0x8000000000000000L) {
             b
         } else a
@@ -3248,9 +3245,9 @@ object FastMath {
      * @return sqrt(*x*<sup>2</sup>&nbsp;+*y*<sup>2</sup>)
      */
     fun hypot(x: Double, y: Double): Double {
-        return if (java.lang.Double.isInfinite(x) || java.lang.Double.isInfinite(y)) {
+        return if (x.isInfinite() || y.isInfinite()) {
             Double.POSITIVE_INFINITY
-        } else if (java.lang.Double.isNaN(x) || java.lang.Double.isNaN(y)) {
+        } else if (x.isNaN() || y.isNaN()) {
             Double.NaN
         } else {
             val expX = getExponent(x)
@@ -3302,7 +3299,7 @@ object FastMath {
      * @return the remainder, rounded
      */
     fun IEEEremainder(dividend: Double, divisor: Double): Double {
-        return java.lang.StrictMath.IEEEremainder(dividend, divisor) // TODO provide our own implementation
+        return StrictMath.IEEEremainder(dividend, divisor) // TODO provide our own implementation
     }
 
     /** Convert a long to interger, detecting overflows
@@ -3311,7 +3308,6 @@ object FastMath {
      * @exception MathArithmeticException if n cannot fit into an int
      * @since 3.4
      */
-    @Throws(MathArithmeticException::class)
     fun toIntExact(n: Long): Int {
         if (n < Int.MIN_VALUE || n > Int.MAX_VALUE) {
             throw MathArithmeticException(LocalizedFormats.OVERFLOW)
@@ -3325,7 +3321,6 @@ object FastMath {
      * @exception MathArithmeticException if an overflow occurs
      * @since 3.4
      */
-    @Throws(MathArithmeticException::class)
     fun incrementExact(n: Int): Int {
         if (n == Int.MAX_VALUE) {
             throw MathArithmeticException(LocalizedFormats.OVERFLOW_IN_ADDITION, n, 1)
@@ -3339,7 +3334,6 @@ object FastMath {
      * @exception MathArithmeticException if an overflow occurs
      * @since 3.4
      */
-    @Throws(MathArithmeticException::class)
     fun incrementExact(n: Long): Long {
         if (n == Long.MAX_VALUE) {
             throw MathArithmeticException(LocalizedFormats.OVERFLOW_IN_ADDITION, n, 1)
@@ -3353,7 +3347,6 @@ object FastMath {
      * @exception MathArithmeticException if an overflow occurs
      * @since 3.4
      */
-    @Throws(MathArithmeticException::class)
     fun decrementExact(n: Int): Int {
         if (n == Int.MIN_VALUE) {
             throw MathArithmeticException(LocalizedFormats.OVERFLOW_IN_SUBTRACTION, n, 1)
@@ -3367,7 +3360,6 @@ object FastMath {
      * @exception MathArithmeticException if an overflow occurs
      * @since 3.4
      */
-    @Throws(MathArithmeticException::class)
     fun decrementExact(n: Long): Long {
         if (n == Long.MIN_VALUE) {
             throw MathArithmeticException(LocalizedFormats.OVERFLOW_IN_SUBTRACTION, n, 1)
@@ -3382,7 +3374,6 @@ object FastMath {
      * @exception MathArithmeticException if an overflow occurs
      * @since 3.4
      */
-    @Throws(MathArithmeticException::class)
     fun addExact(a: Int, b: Int): Int {
 
         // compute sum
@@ -3402,7 +3393,6 @@ object FastMath {
      * @exception MathArithmeticException if an overflow occurs
      * @since 3.4
      */
-    @Throws(MathArithmeticException::class)
     fun addExact(a: Long, b: Long): Long {
 
         // compute sum
@@ -3501,7 +3491,6 @@ object FastMath {
      * @see .floorMod
      * @since 3.4
      */
-    @Throws(MathArithmeticException::class)
     fun floorDiv(a: Int, b: Int): Int {
         if (b == 0) {
             throw MathArithmeticException(LocalizedFormats.ZERO_DENOMINATOR)
@@ -3530,7 +3519,6 @@ object FastMath {
      * @see .floorMod
      * @since 3.4
      */
-    @Throws(MathArithmeticException::class)
     fun floorDiv(a: Long, b: Long): Long {
         if (b == 0L) {
             throw MathArithmeticException(LocalizedFormats.ZERO_DENOMINATOR)
@@ -3559,7 +3547,6 @@ object FastMath {
      * @see .floorDiv
      * @since 3.4
      */
-    @Throws(MathArithmeticException::class)
     fun floorMod(a: Int, b: Int): Int {
         if (b == 0) {
             throw MathArithmeticException(LocalizedFormats.ZERO_DENOMINATOR)
@@ -3615,8 +3602,8 @@ object FastMath {
         // highest order bit of m and s is the same and one otherwise.
         // So (m^s) will be positive if both m and s have the same sign
         // and negative otherwise.
-        val m: Long = java.lang.Double.doubleToRawLongBits(magnitude) // don't care about NaN
-        val s: Long = java.lang.Double.doubleToRawLongBits(sign)
+        val m: Long = magnitude.toRawBits() // don't care about NaN
+        val s: Long = sign.toRawBits()
         return if (m xor s >= 0) {
             magnitude
         } else -magnitude
@@ -3636,8 +3623,8 @@ object FastMath {
         // highest order bit of m and s is the same and one otherwise.
         // So (m^s) will be positive if both m and s have the same sign
         // and negative otherwise.
-        val m: Int = java.lang.Float.floatToRawIntBits(magnitude)
-        val s: Int = java.lang.Float.floatToRawIntBits(sign)
+        val m: Int = magnitude.toRawBits()
+        val s: Int = sign.toRawBits()
         return if (m xor s >= 0) {
             magnitude
         } else -magnitude
@@ -3656,7 +3643,7 @@ object FastMath {
      */
     fun getExponent(d: Double): Int {
         // NaN and Infinite will return 1024 anywho so can use raw bits
-        return (java.lang.Double.doubleToRawLongBits(d) ushr 52 and 0x7ff) as Int - 1023
+        return (d.toRawBits() ushr 52 and 0x7ff) as Int - 1023
     }
 
     /**
@@ -3671,7 +3658,7 @@ object FastMath {
      */
     fun getExponent(f: Float): Int {
         // NaN and Infinite will return the same exponent anywho so can use raw bits
-        return (java.lang.Float.floatToRawIntBits(f) ushr 23 and 0xff) - 127
+        return (f.toRawBits() ushr 23 and 0xff) - 127
     }
 
     /**
@@ -3680,9 +3667,8 @@ object FastMath {
      * used to generate the preset arrays originally.
      * @param a unused
      */
-    @JvmStatic
     fun main(a: Array<String>) {
-        val out: PrintStream = java.lang.System.out
+        val out: PrintStream = System.out
         FastMathCalc.printarray(out, "EXP_INT_TABLE_A", EXP_INT_TABLE_LEN, ExpIntTable.EXP_INT_TABLE_A)
         FastMathCalc.printarray(out, "EXP_INT_TABLE_B", EXP_INT_TABLE_LEN, ExpIntTable.EXP_INT_TABLE_B)
         FastMathCalc.printarray(out, "EXP_FRAC_TABLE_A", EXP_FRAC_TABLE_LEN, ExpFracTable.EXP_FRAC_TABLE_A)
@@ -3712,7 +3698,7 @@ object FastMath {
          */
         internal constructor(x: Double) {
             full = x
-            high = java.lang.Double.longBitsToDouble(java.lang.Double.doubleToRawLongBits(x) and (-1L shl 27))
+            high = Double.fromBits(x.toRawBits() and (-1L shl 27))
             low = x - high
         }
 
@@ -3724,7 +3710,7 @@ object FastMath {
             high: Double,
             low: Double
         ) : this(
-            if (high == 0.0) if (low == 0.0 && java.lang.Double.doubleToRawLongBits(high) == Long.MIN_VALUE /* negative zero */) -0.0 else low else high + low,
+            if (high == 0.0) if (low == 0.0 && high.toRawBits() == Long.MIN_VALUE /* negative zero */) -0.0 else low else high + low,
             high,
             low
         ) {
@@ -3767,7 +3753,7 @@ object FastMath {
             val error = product.high - 1 + product.low
 
             // better accuracy estimate of reciprocal
-            return if (java.lang.Double.isNaN(error)) splitInv else Split(splitInv.high, splitInv.low - error / full)
+            return if (error.isNaN()) splitInv else Split(splitInv.high, splitInv.low - error / full)
         }
 
         /** Computes this^e.
@@ -3793,8 +3779,8 @@ object FastMath {
                 d2p = d2p.multiply(d2p)
                 p = p ushr 1
             }
-            return if (java.lang.Double.isNaN(result.full)) {
-                if (java.lang.Double.isNaN(full)) {
+            return if (result.full.isNaN()) {
+                if (full.isNaN()) {
                     NAN
                 } else {
                     // some intermediate numbers exceeded capacity,
@@ -3814,13 +3800,12 @@ object FastMath {
 
         companion object {
             /** Split version of NaN.  */
-            val NAN = Split(Double.NaN, 0)
-
+            val NAN = Split(Double.NaN, 0.0)
             /** Split version of positive infinity.  */
-            val POSITIVE_INFINITY = Split(Double.POSITIVE_INFINITY, 0)
+            val POSITIVE_INFINITY = Split(Double.POSITIVE_INFINITY, 0.0)
 
             /** Split version of negative infinity.  */
-            val NEGATIVE_INFINITY = Split(Double.NEGATIVE_INFINITY, 0)
+            val NEGATIVE_INFINITY = Split(Double.NEGATIVE_INFINITY, 0.0)
         }
     }
 
@@ -3898,17 +3883,15 @@ object FastMath {
     /** Enclose large data table in nested static class so it's only loaded on first access.  */
     private object lnMant {
         /** Extended precision logarithm table over the range 1 - 2 in increments of 2^-10.  */
-        val LN_MANT: Array<DoubleArray?>
+        val LN_MANT: Array<DoubleArray>
 
         init {
             if (RECOMPUTE_TABLES_AT_RUNTIME) {
-                LN_MANT = arrayOfNulls(LN_MANT_LEN)
-
-                // Populate lnMant table
-                for (i in LN_MANT.indices) {
+                LN_MANT = Array(LN_MANT_LEN) { i ->
+                    // Populate lnMant table
                     val d: Double =
-                        java.lang.Double.longBitsToDouble(i.toLong() shl 42 or 0x3ff0000000000000L)
-                    LN_MANT[i] = FastMathCalc.slowLog(d)
+                        Double.fromBits(i.toLong() shl 42 or 0x3ff0000000000000L)
+                    FastMathCalc.slowLog(d)
                 }
             } else {
                 LN_MANT = FastMathLiteralArrays.loadLnMant()
