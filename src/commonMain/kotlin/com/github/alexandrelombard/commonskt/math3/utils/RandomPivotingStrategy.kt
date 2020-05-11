@@ -1,7 +1,3 @@
-package com.github.alexandrelombard.commonskt.math3.utils
-import com.github.alexandrelombard.commonskt.math3.exception.MathIllegalArgumentException
-
-
 /*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -18,17 +14,19 @@ import com.github.alexandrelombard.commonskt.math3.exception.MathIllegalArgument
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import org.apache.commons.math3.exception.MathIllegalArgumentException
-import org.apache.commons.math3.random.RandomGenerator
+package com.github.alexandrelombard.commonskt.math3.utils
 
+import kotlin.random.Random
+
+import com.github.alexandrelombard.commonskt.math3.exception.MathIllegalArgumentException
 
 /**
  * A strategy of selecting random index between begin and end indices.
  * @since 3.4
  */
-class RandomPivotingStrategy(random: RandomGenerator) : PivotingStrategyInterface {
+class RandomPivotingStrategy(random: Random) : PivotingStrategyInterface {
     /** Random generator to use for selecting pivot.  */
-    private val random: RandomGenerator
+    private val random: Random
 
     /**
      * {@inheritDoc}

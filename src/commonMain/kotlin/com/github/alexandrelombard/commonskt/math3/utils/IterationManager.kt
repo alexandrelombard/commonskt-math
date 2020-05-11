@@ -1,7 +1,3 @@
-package com.github.alexandrelombard.commonskt.math3.utils
-import com.github.alexandrelombard.commonskt.math3.exception.MaxCountExceededException
-
-
 /*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -18,8 +14,9 @@ import com.github.alexandrelombard.commonskt.math3.exception.MaxCountExceededExc
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import org.apache.commons.math3.exception.MaxCountExceededException
+package com.github.alexandrelombard.commonskt.math3.utils
 
+import com.github.alexandrelombard.commonskt.math3.exception.MaxCountExceededException
 
 /**
  * This abstract class provides a general framework for managing iterative
@@ -42,7 +39,7 @@ class IterationManager {
      */
     constructor(maxIterations: Int) {
         iterations = IntegerSequence.Incrementor.create().withMaximalCount(maxIterations)
-        listeners = CopyOnWriteArrayList<IterationListener>()
+        listeners = mutableListOf()
     }
 
     /**
@@ -78,15 +75,14 @@ class IterationManager {
      * @param maxIterations the maximum number of iterations
      * @param callBack the function to be called when the maximum number of
      * iterations has been reached
-     * @throws org.apache.commons.math3.exception.NullArgumentException if `callBack` is `null`
      * @since 3.6
      */
     constructor(
         maxIterations: Int,
-        callBack: IntegerSequence.Incrementor.MaxCountExceededCallback?
+        callBack: IntegerSequence.Incrementor.MaxCountExceededCallback
     ) {
         iterations = IntegerSequence.Incrementor.create().withMaximalCount(maxIterations).withCallback(callBack)
-        listeners = CopyOnWriteArrayList<IterationListener>()
+        listeners = mutableListOf()
     }
 
     /**
@@ -104,7 +100,7 @@ class IterationManager {
      *
      * @param e The [IterationEvent] object.
      */
-    fun fireInitializationEvent(e: IterationEvent?) {
+    fun fireInitializationEvent(e: IterationEvent) {
         for (l in listeners) {
             l.initializationPerformed(e)
         }
@@ -116,7 +112,7 @@ class IterationManager {
      *
      * @param e The [IterationEvent] object.
      */
-    fun fireIterationPerformedEvent(e: IterationEvent?) {
+    fun fireIterationPerformedEvent(e: IterationEvent) {
         for (l in listeners) {
             l.iterationPerformed(e)
         }
@@ -128,7 +124,7 @@ class IterationManager {
      *
      * @param e The [IterationEvent] object.
      */
-    fun fireIterationStartedEvent(e: IterationEvent?) {
+    fun fireIterationStartedEvent(e: IterationEvent) {
         for (l in listeners) {
             l.iterationStarted(e)
         }
@@ -140,7 +136,7 @@ class IterationManager {
      *
      * @param e The [IterationEvent] object.
      */
-    fun fireTerminationEvent(e: IterationEvent?) {
+    fun fireTerminationEvent(e: IterationEvent) {
         for (l in listeners) {
             l.terminationPerformed(e)
         }

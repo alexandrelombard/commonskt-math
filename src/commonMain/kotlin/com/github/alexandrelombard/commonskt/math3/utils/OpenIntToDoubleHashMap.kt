@@ -62,24 +62,17 @@ class OpenIntToDoubleHashMap {
      * Build an empty map with default size
      * @param missingEntries value to return when a missing entry is fetched
      */
+    @ExperimentalStdlibApi
     constructor(missingEntries: Double) : this(
         DEFAULT_EXPECTED_SIZE,
         missingEntries
-    ) {
-    }
+    )
     /**
      * Build an empty map with specified size.
      * @param expectedSize expected number of elements in the map
      * @param missingEntries value to return when a missing entry is fetched
      */
-    /**
-     * Build an empty map with default size and using NaN for missing entries.
-     */
-    /**
-     * Build an empty map with specified size and using NaN for missing entries.
-     * @param expectedSize expected number of elements in the map
-     */
-    @JvmOverloads
+    @ExperimentalStdlibApi
     constructor(
         expectedSize: Int = DEFAULT_EXPECTED_SIZE,
         missingEntries: Double = Double.NaN
@@ -99,11 +92,11 @@ class OpenIntToDoubleHashMap {
     constructor(source: OpenIntToDoubleHashMap) {
         val length = source.keys.size
         keys = IntArray(length)
-        java.lang.System.arraycopy(source.keys, 0, keys, 0, length)
+        source.keys.copyInto(keys, 0, 0, length)
         values = DoubleArray(length)
-        java.lang.System.arraycopy(source.values, 0, values, 0, length)
+        source.values.copyInto(values, 0, 0, length)
         states = ByteArray(length)
-        java.lang.System.arraycopy(source.states, 0, states, 0, length)
+        source.states.copyInto(states, 0, length)
         missingEntries = source.missingEntries
         size = source.size
         mask = source.mask
@@ -311,7 +304,7 @@ class OpenIntToDoubleHashMap {
     }
 
     /** Iterator class for the map.  */
-    inner class Iterator private constructor() {
+    inner class Iterator() {
         /** Reference modification count.  */
         private val referenceCount: Int
 
@@ -335,7 +328,6 @@ class OpenIntToDoubleHashMap {
          * @exception ConcurrentModificationException if the map is modified during iteration
          * @exception NoSuchElementException if there is no element left in the map
          */
-        @Throws(ConcurrentModificationException::class, NoSuchElementException::class)
         fun key(): Int {
             if (referenceCount != count) {
                 throw ConcurrentModificationException()
@@ -352,7 +344,6 @@ class OpenIntToDoubleHashMap {
          * @exception ConcurrentModificationException if the map is modified during iteration
          * @exception NoSuchElementException if there is no element left in the map
          */
-        @Throws(ConcurrentModificationException::class, NoSuchElementException::class)
         fun value(): Double {
             if (referenceCount != count) {
                 throw ConcurrentModificationException()
@@ -368,7 +359,6 @@ class OpenIntToDoubleHashMap {
          * @exception ConcurrentModificationException if the map is modified during iteration
          * @exception NoSuchElementException if there is no element left in the map
          */
-        @Throws(ConcurrentModificationException::class, NoSuchElementException::class)
         fun advance() {
             if (referenceCount != count) {
                 throw ConcurrentModificationException()
@@ -382,7 +372,7 @@ class OpenIntToDoubleHashMap {
                 while (states[++next] != FULL) { // NOPMD
                     // nothing to do
                 }
-            } catch (e: ArrayIndexOutOfBoundsException) {
+            } catch (e: IndexOutOfBoundsException) {
                 next = -2
                 if (current < 0) {
                     throw NoSuchElementException()
@@ -406,19 +396,6 @@ class OpenIntToDoubleHashMap {
                 // ignored
             }
         }
-    }
-
-    /**
-     * Read a serialized object.
-     * @param stream input stream
-     * @throws IOException if object cannot be read
-     * @throws ClassNotFoundException if the class corresponding
-     * to the serialized object cannot be found
-     */
-    @Throws(IOException::class, ClassNotFoundException::class)
-    private fun readObject(stream: ObjectInputStream) {
-        stream.defaultReadObject()
-        count = 0
     }
 
     companion object {
@@ -457,13 +434,14 @@ class OpenIntToDoubleHashMap {
          * @param expectedSize expected size of the map
          * @return capacity to use for the specified size
          */
+        @ExperimentalStdlibApi
         private fun computeCapacity(expectedSize: Int): Int {
             if (expectedSize == 0) {
                 return 1
             }
             val capacity =
                 ceil(expectedSize / LOAD_FACTOR.toDouble()).toInt()
-            val powerOfTwo: Int = java.lang.Integer.highestOneBit(capacity)
+            val powerOfTwo: Int = capacity.takeHighestOneBit()
             return if (powerOfTwo == capacity) {
                 capacity
             } else nextPowerOfTwo(capacity)
@@ -474,8 +452,9 @@ class OpenIntToDoubleHashMap {
          * @param i input value
          * @return smallest power of two greater than the input value
          */
+        @ExperimentalStdlibApi
         private fun nextPowerOfTwo(i: Int): Int {
-            return java.lang.Integer.highestOneBit(i) shl 1
+            return i.takeHighestOneBit() shl 1
         }
 
         /**

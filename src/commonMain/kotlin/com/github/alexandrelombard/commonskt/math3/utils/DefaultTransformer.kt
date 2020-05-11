@@ -35,7 +35,7 @@ class DefaultTransformer : NumberTransformer {
      * cannot successfully be transformed
      * @see [Commons Collections Transformer](http://commons.apache.org/collections/api-release/org/apache/commons/collections/Transformer.html)
      */
-    fun transform(o: Any): Double {
+    override fun transform(o: Any): Double {
         return if (o is Number) {
             o.toDouble()
         } else try {

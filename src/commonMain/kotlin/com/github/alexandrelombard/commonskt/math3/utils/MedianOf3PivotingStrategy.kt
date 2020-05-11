@@ -1,7 +1,3 @@
-package com.github.alexandrelombard.commonskt.math3.utils
-import com.github.alexandrelombard.commonskt.math3.exception.MathIllegalArgumentException
-
-
 /*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -18,22 +14,22 @@ import com.github.alexandrelombard.commonskt.math3.exception.MathIllegalArgument
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import org.apache.commons.math3.exception.MathIllegalArgumentException
+package com.github.alexandrelombard.commonskt.math3.utils
 
+import com.github.alexandrelombard.commonskt.math3.exception.MathIllegalArgumentException
 
 /**
  * Classic median of 3 strategy given begin and end indices.
  * @since 3.4
  */
-class MedianOf3PivotingStrategy : PivotingStrategyInterface, java.io.Serializable {
+class MedianOf3PivotingStrategy : PivotingStrategyInterface {
     /**{@inheritDoc}
      * This in specific makes use of median of 3 pivoting.
      * @return The index corresponding to a pivot chosen between the
      * first, middle and the last indices of the array slice
      * @throws MathIllegalArgumentException when indices exceeds range
      */
-    @Throws(MathIllegalArgumentException::class)
-    fun pivotIndex(work: DoubleArray, begin: Int, end: Int): Int {
+    override fun pivotIndex(work: DoubleArray, begin: Int, end: Int): Int {
         MathArrays.verifyValues(work, begin, end - begin)
         val inclusiveEnd = end - 1
         val middle = begin + (inclusiveEnd - begin) / 2

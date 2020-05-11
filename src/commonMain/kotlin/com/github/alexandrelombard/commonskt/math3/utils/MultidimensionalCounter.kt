@@ -1,9 +1,3 @@
-package com.github.alexandrelombard.commonskt.math3.utils
-import com.github.alexandrelombard.commonskt.math3.exception.DimensionMismatchException
-
-import com.github.alexandrelombard.commonskt.math3.exception.NotStrictlyPositiveException
-
-
 /*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -20,11 +14,11 @@ import com.github.alexandrelombard.commonskt.math3.exception.NotStrictlyPositive
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.github.alexandrelombard.commonskt.math3.utils
 
-import org.apache.commons.math3.exception.DimensionMismatchException
-import org.apache.commons.math3.exception.NotStrictlyPositiveException
-import org.apache.commons.math3.exception.OutOfRangeException
-
+import com.github.alexandrelombard.commonskt.math3.exception.DimensionMismatchException
+import com.github.alexandrelombard.commonskt.math3.exception.NotStrictlyPositiveException
+import com.github.alexandrelombard.commonskt.math3.exception.OutOfRangeException
 
 /**
  * Converter between unidimensional storage structure and multidimensional
@@ -47,7 +41,7 @@ import org.apache.commons.math3.exception.OutOfRangeException
  *
  * @since 2.2
  */
-class MultidimensionalCounter(vararg size: Int) : Iterable<Int?> {
+class MultidimensionalCounter(vararg size: Int) : Iterable<Int> {
     /**
      * Get the number of dimensions of the multidimensional counter.
      *
@@ -69,14 +63,9 @@ class MultidimensionalCounter(vararg size: Int) : Iterable<Int?> {
     private val size: IntArray
 
     /**
-     * Get the total number of elements.
-     *
-     * @return the total size of the unidimensional counter.
-     */
-    /**
      * Total number of (one-dimensional) slots.
      */
-    val size: Int
+    val totalSize: Int
 
     /**
      * Index of last dimension.
@@ -86,7 +75,7 @@ class MultidimensionalCounter(vararg size: Int) : Iterable<Int?> {
     /**
      * Perform iteration over the multidimensional counter.
      */
-    inner class Iterator internal constructor() : MutableIterator<Int?> {
+    inner class Iterator internal constructor() : MutableIterator<Int> {
         /**
          * Multidimensional counter.
          */
@@ -106,7 +95,7 @@ class MultidimensionalCounter(vararg size: Int) : Iterable<Int?> {
         /**
          * Maximum value for [.count].
          */
-        private val maxCount: Int = this.size - 1
+        private val maxCount: Int = totalSize - 1
 
         /**
          * {@inheritDoc}
@@ -191,12 +180,9 @@ class MultidimensionalCounter(vararg size: Int) : Iterable<Int?> {
      * @throws OutOfRangeException if `index` is not between
      * `0` and the value returned by [.getSize] (excluded).
      */
-    @Throws(OutOfRangeException::class)
     fun getCounts(index: Int): IntArray {
-        if (index < 0 ||
-            index >= this.size
-        ) {
-            throw OutOfRangeException(index, 0, this.size)
+        if (index < 0 || index >= this.totalSize) {
+            throw OutOfRangeException(index, 0, this.totalSize)
         }
         val indices = IntArray(dimension)
         var count = 0
@@ -226,7 +212,6 @@ class MultidimensionalCounter(vararg size: Int) : Iterable<Int?> {
      * the range of the corresponding dimension, as defined in the
      * [constructor][MultidimensionalCounter.MultidimensionalCounter].
      */
-    @Throws(OutOfRangeException::class, DimensionMismatchException::class)
     fun getCount(vararg c: Int): Int {
         if (c.size != dimension) {
             throw DimensionMismatchException(c.size, dimension)
@@ -256,7 +241,7 @@ class MultidimensionalCounter(vararg size: Int) : Iterable<Int?> {
      * {@inheritDoc}
      */
     override fun toString(): String {
-        val sb: java.lang.StringBuilder = java.lang.StringBuilder()
+        val sb = StringBuilder()
         for (i in 0 until dimension) {
             sb.append("[").append(getCount(i)).append("]")
         }
@@ -288,6 +273,6 @@ class MultidimensionalCounter(vararg size: Int) : Iterable<Int?> {
         if (tS <= 0) {
             throw NotStrictlyPositiveException(tS)
         }
-        this.size = tS
+        this.totalSize = tS
     }
 }

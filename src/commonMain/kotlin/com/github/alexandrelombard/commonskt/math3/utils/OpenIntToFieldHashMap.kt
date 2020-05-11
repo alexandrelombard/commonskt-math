@@ -1,9 +1,3 @@
-package com.github.alexandrelombard.commonskt.math3.utils
-import com.github.alexandrelombard.commonskt.math3.Field
-import com.github.alexandrelombard.commonskt.math3.FieldElement
-import com.github.alexandrelombard.commonskt.math3.utils.FastMath.ceil
-
-
 /*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -20,10 +14,13 @@ import com.github.alexandrelombard.commonskt.math3.utils.FastMath.ceil
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import org.apache.commons.math3.Field
-import org.apache.commons.math3.FieldElement
+package com.github.alexandrelombard.commonskt.math3.utils
+
 import kotlin.jvm.Transient
 
+import com.github.alexandrelombard.commonskt.math3.Field
+import com.github.alexandrelombard.commonskt.math3.FieldElement
+import com.github.alexandrelombard.commonskt.math3.utils.FastMath.ceil
 
 /**
  * Open addressed map from int to FieldElement.
@@ -38,21 +35,21 @@ import kotlin.jvm.Transient
  * @param <T> the type of the field elements
  * @since 2.0
 </T> */
-class OpenIntToFieldHashMap<T : FieldElement<T?>?> {
+class OpenIntToFieldHashMap<T : FieldElement<T>> {
     /** Field to which the elements belong.  */
     private val field: Field<T>
 
     /** Keys table.  */
-    private var keys: IntArray?
+    private var keys: IntArray
 
     /** Values table.  */
-    private var values: Array<T?>?
+    private var values: Array<T>
 
     /** States table.  */
-    private var states: ByteArray?
+    private var states: ByteArray
 
     /** Return value for missing entries.  */
-    private val missingEntries: T?
+    private val missingEntries: T
 
     /** Current size of the map.  */
     private var size = 0
@@ -68,31 +65,32 @@ class OpenIntToFieldHashMap<T : FieldElement<T?>?> {
      * Build an empty map with default size and using zero for missing entries.
      * @param field field to which the elements belong
      */
+    @ExperimentalStdlibApi
     constructor(field: Field<T>) : this(
         field,
         DEFAULT_EXPECTED_SIZE,
         field.zero
-    ) {
-    }
+    )
 
     /**
      * Build an empty map with default size
      * @param field field to which the elements belong
      * @param missingEntries value to return when a missing entry is fetched
      */
+    @ExperimentalStdlibApi
     constructor(field: Field<T>, missingEntries: T) : this(
         field,
         DEFAULT_EXPECTED_SIZE,
         missingEntries
-    ) {
-    }
+    )
 
     /**
      * Build an empty map with specified size and using zero for missing entries.
      * @param field field to which the elements belong
      * @param expectedSize expected number of elements in the map
      */
-    constructor(field: Field<T>, expectedSize: Int) : this(field, expectedSize, field.getZero()) {}
+    @ExperimentalStdlibApi
+    constructor(field: Field<T>, expectedSize: Int) : this(field, expectedSize, field.zero)
 
     /**
      * Build an empty map with specified size.
@@ -100,6 +98,7 @@ class OpenIntToFieldHashMap<T : FieldElement<T?>?> {
      * @param expectedSize expected number of elements in the map
      * @param missingEntries value to return when a missing entry is fetched
      */
+    @ExperimentalStdlibApi
     constructor(
         field: Field<T>, expectedSize: Int,
         missingEntries: T
@@ -119,13 +118,13 @@ class OpenIntToFieldHashMap<T : FieldElement<T?>?> {
      */
     constructor(source: OpenIntToFieldHashMap<T>) {
         field = source.field
-        val length = source.keys!!.size
+        val length = source.keys.size
         keys = IntArray(length)
-        java.lang.System.arraycopy(source.keys, 0, keys, 0, length)
+        source.keys.copyInto(keys, 0, 0, length)
         values = buildArray(length)
-        java.lang.System.arraycopy(source.values, 0, values, 0, length)
+        source.values.copyInto(values, 0, 0, length)
         states = ByteArray(length)
-        java.lang.System.arraycopy(source.states, 0, states, 0, length)
+        source.states.copyInto(states, 0, 0, length)
         missingEntries = source.missingEntries
         size = source.size
         mask = source.mask
@@ -141,18 +140,18 @@ class OpenIntToFieldHashMap<T : FieldElement<T?>?> {
         val hash = hashOf(key)
         var index = hash and mask
         if (containsKey(key, index)) {
-            return values!![index]
+            return values[index]
         }
-        if (states!![index] == FREE) {
+        if (states[index] == FREE) {
             return missingEntries
         }
         var j = index
         var perturb = perturb(hash)
-        while (states!![index] != FREE) {
+        while (states[index] != FREE) {
             j = probe(perturb, j)
             index = j and mask
             if (containsKey(key, index)) {
-                return values!![index]
+                return values[index]
             }
             perturb = perturb shr PERTURB_SHIFT
         }
@@ -170,12 +169,12 @@ class OpenIntToFieldHashMap<T : FieldElement<T?>?> {
         if (containsKey(key, index)) {
             return true
         }
-        if (states!![index] == FREE) {
+        if (states[index] == FREE) {
             return false
         }
         var j = index
         var perturb = perturb(hash)
-        while (states!![index] != FREE) {
+        while (states[index] != FREE) {
             j = probe(perturb, j)
             index = j and mask
             if (containsKey(key, index)) {
@@ -226,12 +225,12 @@ class OpenIntToFieldHashMap<T : FieldElement<T?>?> {
         if (containsKey(key, index)) {
             return doRemove(index)
         }
-        if (states!![index] == FREE) {
+        if (states[index] == FREE) {
             return missingEntries
         }
         var j = index
         var perturb = perturb(hash)
-        while (states!![index] != FREE) {
+        while (states[index] != FREE) {
             j = probe(perturb, j)
             index = j and mask
             if (containsKey(key, index)) {
@@ -250,7 +249,7 @@ class OpenIntToFieldHashMap<T : FieldElement<T?>?> {
      * @return true if an element is associated with key at index
      */
     private fun containsKey(key: Int, index: Int): Boolean {
-        return (key != 0 || states!![index] == FULL) && keys!![index] == key
+        return (key != 0 || states[index] == FULL) && keys[index] == key
     }
 
     /**
@@ -259,10 +258,10 @@ class OpenIntToFieldHashMap<T : FieldElement<T?>?> {
      * @return removed value
      */
     private fun doRemove(index: Int): T? {
-        keys!![index] = 0
-        states!![index] = REMOVED
-        val previous = values!![index]
-        values!![index] = missingEntries
+        keys[index] = 0
+        states[index] = REMOVED
+        val previous = values[index]
+        values[index] = missingEntries
         --size
         ++count
         return previous
@@ -274,18 +273,18 @@ class OpenIntToFieldHashMap<T : FieldElement<T?>?> {
      * @param value value to put in the map
      * @return previous value associated with the key
      */
-    fun put(key: Int, value: T?): T? {
+    fun put(key: Int, value: T): T {
         var index = findInsertionIndex(key)
         var previous = missingEntries
         var newMapping = true
         if (index < 0) {
             index = changeIndexSign(index)
-            previous = values!![index]
+            previous = values[index]
             newMapping = false
         }
-        keys!![index] = key
-        states!![index] = FULL
-        values!![index] = value
+        keys[index] = key
+        states[index] = FULL
+        values[index] = value
         if (newMapping) {
             ++size
             if (shouldGrowTable()) {
@@ -300,7 +299,7 @@ class OpenIntToFieldHashMap<T : FieldElement<T?>?> {
      * Grow the tables.
      */
     private fun growTable() {
-        val oldLength = states!!.size
+        val oldLength = states.size
         val oldKeys = keys
         val oldValues = values
         val oldStates = states
@@ -310,11 +309,11 @@ class OpenIntToFieldHashMap<T : FieldElement<T?>?> {
         val newStates = ByteArray(newLength)
         val newMask = newLength - 1
         for (i in 0 until oldLength) {
-            if (oldStates!![i] == FULL) {
-                val key = oldKeys!![i]
+            if (oldStates[i] == FULL) {
+                val key = oldKeys[i]
                 val index = findInsertionIndex(newKeys, newStates, key, newMask)
                 newKeys[index] = key
-                newValues!![index] = oldValues!![i]
+                newValues[index] = oldValues[i]
                 newStates[index] = FULL
             }
         }
@@ -364,7 +363,7 @@ class OpenIntToFieldHashMap<T : FieldElement<T?>?> {
             if (current < 0) {
                 throw NoSuchElementException()
             }
-            return keys!![current]
+            return keys[current]
         }
 
         /**
@@ -380,7 +379,7 @@ class OpenIntToFieldHashMap<T : FieldElement<T?>?> {
             if (current < 0) {
                 throw NoSuchElementException()
             }
-            return values!![current]
+            return values[current]
         }
 
         /**
@@ -398,7 +397,7 @@ class OpenIntToFieldHashMap<T : FieldElement<T?>?> {
 
             // prepare next step
             try {
-                while (states!![++next] != FULL) { // NOPMD
+                while (states[++next] != FULL) { // NOPMD
                     // nothing to do
                 }
             } catch (e: IndexOutOfBoundsException) {
@@ -432,7 +431,7 @@ class OpenIntToFieldHashMap<T : FieldElement<T?>?> {
      * @return a new array
      */
     // field is of type T
-    private fun buildArray(length: Int): Array<T?>? {
+    private fun buildArray(length: Int): Array<T> {
         return java.lang.reflect.Array.newInstance(field.getRuntimeClass(), length)
     }
 
@@ -472,13 +471,14 @@ class OpenIntToFieldHashMap<T : FieldElement<T?>?> {
          * @param expectedSize expected size of the map
          * @return capacity to use for the specified size
          */
+        @ExperimentalStdlibApi
         private fun computeCapacity(expectedSize: Int): Int {
             if (expectedSize == 0) {
                 return 1
             }
             val capacity =
                 ceil(expectedSize / LOAD_FACTOR.toDouble()).toInt()
-            val powerOfTwo: Int = java.lang.Integer.highestOneBit(capacity)
+            val powerOfTwo: Int = capacity.takeHighestOneBit()
             return if (powerOfTwo == capacity) {
                 capacity
             } else nextPowerOfTwo(capacity)
@@ -489,8 +489,9 @@ class OpenIntToFieldHashMap<T : FieldElement<T?>?> {
          * @param i input value
          * @return smallest power of two greater than the input value
          */
+        @ExperimentalStdlibApi
         private fun nextPowerOfTwo(i: Int): Int {
-            return java.lang.Integer.highestOneBit(i) shl 1
+            return i.takeHighestOneBit() shl 1
         }
 
         /**
@@ -511,14 +512,14 @@ class OpenIntToFieldHashMap<T : FieldElement<T?>?> {
          * @return index at which key should be inserted
          */
         private fun findInsertionIndex(
-            keys: IntArray?, states: ByteArray?,
+            keys: IntArray, states: ByteArray,
             key: Int, mask: Int
         ): Int {
             val hash = hashOf(key)
             var index = hash and mask
-            if (states!![index] == FREE) {
+            if (states[index] == FREE) {
                 return index
-            } else if (states[index] == FULL && keys!![index] == key) {
+            } else if (states[index] == FULL && keys[index] == key) {
                 return changeIndexSign(index)
             }
             var perturb = perturb(hash)
@@ -528,7 +529,7 @@ class OpenIntToFieldHashMap<T : FieldElement<T?>?> {
                     j = probe(perturb, j)
                     index = j and mask
                     perturb = perturb shr PERTURB_SHIFT
-                    if (states[index] != FULL || keys!![index] == key) {
+                    if (states[index] != FULL || keys[index] == key) {
                         break
                     }
                 }
@@ -546,7 +547,7 @@ class OpenIntToFieldHashMap<T : FieldElement<T?>?> {
                 index = j and mask
                 if (states[index] == FREE) {
                     return firstRemoved
-                } else if (states[index] == FULL && keys!![index] == key) {
+                } else if (states[index] == FULL && keys[index] == key) {
                     return changeIndexSign(index)
                 }
                 perturb = perturb shr PERTURB_SHIFT

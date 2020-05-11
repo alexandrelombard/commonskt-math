@@ -28,7 +28,7 @@ import com.github.alexandrelombard.commonskt.math3.exception.util.LocalizedForma
  */
 object CombinatoricsUtils {
     /** All long-representable factorials  */
-    val FACTORIALS: LongArray? = longArrayOf(
+    val FACTORIALS: LongArray = longArrayOf(
         1L, 1L, 2L,
         6L, 24L, 120L,
         720L, 5040L, 40320L,
@@ -68,6 +68,7 @@ object CombinatoricsUtils {
      * @throws MathArithmeticException if the result is too large to be
      * represented by a long integer.
      */
+    @ExperimentalStdlibApi
     fun binomialCoefficient(n: Int, k: Int): Long {
         checkBinomial(n, k)
         if (n == k || k == 0) {
@@ -105,7 +106,7 @@ object CombinatoricsUtils {
                 // result is divisible by (j/d) because (j/d)
                 // is relative prime to (i/d) and is a divisor of
                 // result * (i/d).
-                val d: Long = ArithmeticUtils.gcd(i, j)
+                val d: Long = ArithmeticUtils.gcd(i, j).toLong()
                 result = result / (j / d) * (i / d)
                 i++
             }
@@ -115,7 +116,7 @@ object CombinatoricsUtils {
             // unnecessary.
             var i = n - k + 1
             for (j in 1..k) {
-                val d: Long = ArithmeticUtils.gcd(i, j)
+                val d: Long = ArithmeticUtils.gcd(i, j).toLong()
                 result = ArithmeticUtils.mulAndCheck(result / (j / d), i / d)
                 i++
             }
@@ -148,7 +149,7 @@ object CombinatoricsUtils {
      * @throws MathArithmeticException if the result is too large to be
      * represented by a long integer.
      */
-    @Throws(NotPositiveException::class, NumberIsTooLargeException::class, MathArithmeticException::class)
+    @ExperimentalStdlibApi
     fun binomialCoefficientDouble(n: Int, k: Int): Double {
         checkBinomial(n, k)
         if (n == k || k == 0) {
@@ -190,6 +191,7 @@ object CombinatoricsUtils {
      * @throws MathArithmeticException if the result is too large to be
      * represented by a long integer.
      */
+    @ExperimentalStdlibApi
     fun binomialCoefficientLog(n: Int, k: Int): Double {
         checkBinomial(n, k)
         if (n == k || k == 0) {
@@ -338,6 +340,7 @@ object CombinatoricsUtils {
      * k between 20 and n-2 (S(n,n-1) is handled specifically and does not overflow)
      * @since 3.1
      */
+    @ExperimentalStdlibApi
     fun stirlingS2(n: Int, k: Int): Long {
         if (k < 0) {
             throw NotPositiveException(k)
@@ -403,7 +406,7 @@ object CombinatoricsUtils {
      * @throws NotPositiveException if `n < 0`.
      * @throws NumberIsTooLargeException if `k > n`.
      */
-    fun combinationsIterator(n: Int, k: Int): MutableIterator<IntArray?>? {
+    fun combinationsIterator(n: Int, k: Int): Iterator<IntArray> {
         return Combinations(n, k).iterator()
     }
 

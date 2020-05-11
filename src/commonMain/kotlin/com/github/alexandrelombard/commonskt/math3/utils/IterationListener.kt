@@ -1,5 +1,3 @@
-package com.github.alexandrelombard.commonskt.math3.utils
-
 /*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -16,28 +14,28 @@ package com.github.alexandrelombard.commonskt.math3.utils
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
+package com.github.alexandrelombard.commonskt.math3.utils
 
 /**
  * The listener interface for receiving events occurring in an iterative
  * algorithm.
  *
  */
-interface IterationListener : EventListener {
+interface IterationListener {
     /**
      * Invoked after completion of the initial phase of the iterative algorithm
      * (prior to the main iteration loop).
      *
      * @param e The [IterationEvent] object.
      */
-    fun initializationPerformed(e: IterationEvent?)
+    fun initializationPerformed(e: IterationEvent)
 
     /**
      * Invoked each time an iteration is completed (in the main iteration loop).
      *
      * @param e The [IterationEvent] object.
      */
-    fun iterationPerformed(e: IterationEvent?)
+    fun iterationPerformed(e: IterationEvent)
 
     /**
      * Invoked each time a new iteration is completed (in the main iteration
@@ -45,7 +43,7 @@ interface IterationListener : EventListener {
      *
      * @param e The [IterationEvent] object.
      */
-    fun iterationStarted(e: IterationEvent?)
+    fun iterationStarted(e: IterationEvent)
 
     /**
      * Invoked after completion of the operations which occur after breaking out
@@ -53,5 +51,5 @@ interface IterationListener : EventListener {
      *
      * @param e The [IterationEvent] object.
      */
-    fun terminationPerformed(e: IterationEvent?)
+    fun terminationPerformed(e: IterationEvent)
 }

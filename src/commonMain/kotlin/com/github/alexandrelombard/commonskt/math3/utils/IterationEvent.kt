@@ -1,5 +1,3 @@
-package com.github.alexandrelombard.commonskt.math3.utils
-
 /*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -16,7 +14,7 @@ package com.github.alexandrelombard.commonskt.math3.utils
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
+package com.github.alexandrelombard.commonskt.math3.utils
 
 /**
  * The root class from which all events occurring while running an
@@ -24,25 +22,16 @@ package com.github.alexandrelombard.commonskt.math3.utils
  *
  */
 class IterationEvent
-/**
- * Creates a new instance of this class.
- *
- * @param source the iterative algorithm on which the event initially
- * occurred
- * @param iterations the number of iterations performed at the time
- * `this` event is created
- */(
-    source: Any,
-    /** The number of iterations performed so far.  */
-    val iterations: Int
-) : EventObject(source) {
     /**
-     * Returns the number of iterations performed at the time `this` event
-     * is created.
+     * Creates a new instance of this class.
      *
-     * @return the number of iterations performed
+     * @param source the iterative algorithm on which the event initially
+     * occurred
+     * @param iterations the number of iterations performed at the time
+     * `this` event is created
      */
-
+    (val source: Any,
+    val iterations: Int) {
     companion object {
         /**  */
         private const val serialVersionUID = 20120128L
