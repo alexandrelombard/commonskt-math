@@ -1,5 +1,3 @@
-package com.github.alexandrelombard.commonskt.math3.utils
-
 /*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -16,10 +14,9 @@ package com.github.alexandrelombard.commonskt.math3.utils
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.commons.math3.util;
+package com.github.alexandrelombard.commonskt.math3.utils
 
-import org.apache.commons.math3.exception.MaxCountExceededException;
-import org.apache.commons.math3.exception.NullArgumentException;
+import com.github.alexandrelombard.commonskt.math3.exception.MaxCountExceededException
 
 /**
  * Utility that increments a counter until a maximum is reached, at
@@ -32,44 +29,24 @@ import org.apache.commons.math3.exception.NullArgumentException;
  * @since 3.0
  * @deprecated Use {@link IntegerSequence.Incrementor} instead.
  */
-@Deprecated
-public class Incrementor {
+@Deprecated("Use {@link IntegerSequence.Incrementor} instead.")
+open class Incrementor {
     /**
      * Upper limit for the counter.
      */
-    private int maximalCount;
+    open var maximalCount: Int
+
     /**
      * Current count.
      */
-    private int count = 0;
+    var count = 0
+        private set
+
     /**
      * Function called at counter exhaustion.
      */
-    private final MaxCountExceededCallback maxCountCallback;
+    private val maxCountCallback: MaxCountExceededCallback
 
-    /**
-     * Default constructor.
-     * For the new instance to be useful, the maximal count must be set
-     * by calling {@link #setMaximalCount(int) setMaximalCount}.
-     */
-    public Incrementor() {
-        this(0);
-    }
-
-    /**
-     * Defines a maximal count.
-     *
-     * @param max Maximal count.
-     */
-    public Incrementor(int max) {
-        this(max,
-             new MaxCountExceededCallback() {
-                 /** {@inheritDoc} */
-                 public void trigger(int max) throws MaxCountExceededException {
-                     throw new MaxCountExceededException(max);
-                 }
-             });
-    }
 
     /**
      * Defines a maximal count and a callback method to be triggered at
@@ -79,43 +56,18 @@ public class Incrementor {
      * @param cb Function to be called when the maximal count has been reached.
      * @throws NullArgumentException if {@code cb} is {@code null}
      */
-    public Incrementor(int max, MaxCountExceededCallback cb)
-        throws NullArgumentException {
-        if (cb == null){
-            throw new NullArgumentException();
-        }
-        maximalCount = max;
-        maxCountCallback = cb;
+    constructor(
+        max: Int = 0,
+        cb: MaxCountExceededCallback = object : MaxCountExceededCallback {
+            /** {@inheritDoc} */
+            override fun trigger(maximalCount: Int) {
+                throw MaxCountExceededException(maximalCount)
+            }
+        }) {
+        maximalCount = max
+        maxCountCallback = cb
     }
 
-    /**
-     * Sets the upper limit for the counter.
-     * This does not automatically reset the current count to zero (see
-     * {@link #resetCount()}).
-     *
-     * @param max Upper limit of the counter.
-     */
-    public void setMaximalCount(int max) {
-        maximalCount = max;
-    }
-
-    /**
-     * Gets the upper limit of the counter.
-     *
-     * @return the counter upper limit.
-     */
-    public int getMaximalCount() {
-        return maximalCount;
-    }
-
-    /**
-     * Gets the current count.
-     *
-     * @return the current count.
-     */
-    public int getCount() {
-        return count;
-    }
 
     /**
      * Checks whether a single increment is allowed.
@@ -124,8 +76,8 @@ public class Incrementor {
      * incrementCount} will trigger a {@code MaxCountExceededException},
      * {@code true} otherwise.
      */
-    public boolean canIncrement() {
-        return count < maximalCount;
+    fun canIncrement(): Boolean {
+        return count < maximalCount
     }
 
     /**
@@ -135,8 +87,8 @@ public class Incrementor {
      * @param value Number of increments.
      * @throws MaxCountExceededException at counter exhaustion.
      */
-    public void incrementCount(int value) throws MaxCountExceededException {
-        for (int i = 0; i < value; i++) {
+    fun incrementCount(value: Int) {
+        for (i in 0 until value) {
             incrementCount();
         }
     }
@@ -154,87 +106,87 @@ public class Incrementor {
      * custom {@link MaxCountExceededCallback callback} has been set at
      * construction.
      */
-    public void incrementCount() throws MaxCountExceededException {
+    open fun incrementCount() {
         if (++count > maximalCount) {
-            maxCountCallback.trigger(maximalCount);
+            maxCountCallback.trigger(maximalCount)
         }
     }
 
     /**
      * Resets the counter to 0.
      */
-    public void resetCount() {
-        count = 0;
+    open fun resetCount() {
+        count = 0
     }
 
     /**
      * Defines a method to be called at counter exhaustion.
      * The {@link #trigger(int) trigger} method should usually throw an exception.
      */
-    public interface MaxCountExceededCallback {
+    interface MaxCountExceededCallback {
         /**
          * Function called when the maximal count has been reached.
          *
          * @param maximalCount Maximal count.
          * @throws MaxCountExceededException at counter exhaustion
          */
-        void trigger(int maximalCount) throws MaxCountExceededException;
+        fun trigger(maximalCount: Int)
     }
 
-    /** Create an instance that delegates everything to a {@link IntegerSequence.Incrementor}.
-     * <p>
-     * This factory method is intended only as a temporary hack for internal use in
-     * Apache Commons Math 3.X series, when {@code Incrementor} is required in
-     * interface (as a return value or in protected fields). It should <em>not</em>
-     * be used in other cases. The {@link IntegerSequence.Incrementor} class should
-     * be used instead of {@code Incrementor}.
-     * </p>
-     * <p>
-     * All methods are mirrored to the underlying {@link IntegerSequence.Incrementor},
-     * as long as neither {@link #setMaximalCount(int)} nor {@link #resetCount()} are called.
-     * If one of these two methods is called, the created instance becomes independent
-     * of the {@link IntegerSequence.Incrementor} used at creation. The rationale is that
-     * {@link IntegerSequence.Incrementor} cannot change their maximal count and cannot be reset.
-     * </p>
-     * @param incrementor wrapped {@link IntegerSequence.Incrementor}
-     * @return an incrementor wrapping an {@link IntegerSequence.Incrementor}
-     * @since 3.6
-     */
-    public static Incrementor wrap(final IntegerSequence.Incrementor incrementor) {
-        return new Incrementor() {
+    companion object {
+        /** Create an instance that delegates everything to a {@link IntegerSequence.Incrementor}.
+         * <p>
+         * This factory method is intended only as a temporary hack for internal use in
+         * Apache Commons Math 3.X series, when {@code Incrementor} is required in
+         * interface (as a return value or in protected fields). It should <em>not</em>
+         * be used in other cases. The {@link IntegerSequence.Incrementor} class should
+         * be used instead of {@code Incrementor}.
+         * </p>
+         * <p>
+         * All methods are mirrored to the underlying {@link IntegerSequence.Incrementor},
+         * as long as neither {@link #setMaximalCount(int)} nor {@link #resetCount()} are called.
+         * If one of these two methods is called, the created instance becomes independent
+         * of the {@link IntegerSequence.Incrementor} used at creation. The rationale is that
+         * {@link IntegerSequence.Incrementor} cannot change their maximal count and cannot be reset.
+         * </p>
+         * @param incrementor wrapped {@link IntegerSequence.Incrementor}
+         * @return an incrementor wrapping an {@link IntegerSequence.Incrementor}
+         * @since 3.6
+         */
+        fun wrap(incrementor: IntegerSequence.Incrementor): Incrementor {
+            return object : Incrementor() {
 
-            /** Underlying incrementor. */
-            private IntegerSequence.Incrementor delegate;
+                /** Underlying incrementor. */
+                private var delegate: IntegerSequence.Incrementor
 
-            {
-                // set up matching values at initialization
-                delegate = incrementor;
-                super.setMaximalCount(delegate.getMaximalCount());
-                super.incrementCount(delegate.getCount());
+                init {
+                    // set up matching values at initialization
+                    delegate = incrementor
+                    super.maximalCount = delegate.maximalCount
+                    super.incrementCount(delegate.count)
+                }
+
+                /** {@inheritDoc} */
+                override var maximalCount: Int
+                    get() = super.maximalCount
+                    set(value) {
+                        super.maximalCount = value
+                        delegate = delegate.withMaximalCount(value)
+                    }
+
+                /** {@inheritDoc} */
+                override fun resetCount() {
+                    super.resetCount()
+                    delegate = delegate.withStart(0)
+                }
+
+                /** {@inheritDoc} */
+                override fun incrementCount() {
+                    super.incrementCount()
+                    delegate.increment()
+                }
             }
-
-            /** {@inheritDoc} */
-            @Override
-            public void setMaximalCount(int max) {
-                super.setMaximalCount(max);
-                delegate = delegate.withMaximalCount(max);
-            }
-
-            /** {@inheritDoc} */
-            @Override
-            public void resetCount() {
-                super.resetCount();
-                delegate = delegate.withStart(0);
-            }
-
-            /** {@inheritDoc} */
-            @Override
-            public void incrementCount() {
-                super.incrementCount();
-                delegate.increment();
-            }
-
-        };
+        }
     }
 
 }
